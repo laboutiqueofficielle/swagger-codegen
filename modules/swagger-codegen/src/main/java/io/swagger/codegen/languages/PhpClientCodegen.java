@@ -1,14 +1,6 @@
 package io.swagger.codegen.languages;
 
-import io.swagger.codegen.CliOption;
-import io.swagger.codegen.CodegenConfig;
-import io.swagger.codegen.CodegenConstants;
-import io.swagger.codegen.CodegenOperation;
-import io.swagger.codegen.CodegenParameter;
-import io.swagger.codegen.CodegenProperty;
-import io.swagger.codegen.CodegenType;
-import io.swagger.codegen.DefaultCodegen;
-import io.swagger.codegen.SupportingFile;
+import io.swagger.codegen.*;
 import io.swagger.models.properties.*;
 
 import java.io.File;
@@ -49,13 +41,16 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
     protected String apiDocPath = docsBasePath + "/" + apiDirName;
     protected String modelDocPath = docsBasePath + "/" + modelDirName;
 
+    // Added By LBO from SymfonyServerCodegen.java
+    protected HashSet<String> typeHintable;
+    protected HashSet<String> defaultIncludesJms;
+
     public PhpClientCodegen() {
         super();
 
         // clear import mapping (from default generator) as php does not use it
         // at the moment
         importMapping.clear();
-
 
         supportsInheritance = true;
         outputFolder = "generated-code" + File.separator + "php";
@@ -118,6 +113,7 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
         typeMapping.put("string", "string");
         typeMapping.put("byte", "int");
         typeMapping.put("boolean", "bool");
+        typeMapping.put("date", "\\DateTime");
         typeMapping.put("Date", "\\DateTime");
         typeMapping.put("DateTime", "\\DateTime");
         typeMapping.put("file", "\\SplFileObject");
@@ -143,6 +139,20 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
         cliOptions.add(new CliOption(CodegenConstants.ARTIFACT_VERSION, "The version to use in the composer package version field. e.g. 1.2.3"));
         cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP, "hides the timestamp when files were generated")
                 .defaultValue(Boolean.TRUE.toString()));
+
+        // Added by LBO from SymfonyServerCodegen
+        defaultIncludes = new HashSet<String>(
+            Arrays.asList(
+                "\\DateTime"
+            )
+        );
+
+        // Added by LBO
+        defaultIncludesJms = new HashSet<String>(
+            Arrays.asList(
+                "DateTime"
+            )
+        );
     }
 
     public String getPackagePath() {
@@ -304,6 +314,7 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
         supportingFiles.add(new SupportingFile("ApiException.mustache", toPackagePath(invokerPackage, srcBasePath), "ApiException.php"));
         supportingFiles.add(new SupportingFile("Configuration.mustache", toPackagePath(invokerPackage, srcBasePath), "Configuration.php"));
         supportingFiles.add(new SupportingFile("ObjectSerializer.mustache", toPackagePath(invokerPackage, srcBasePath), "ObjectSerializer.php"));
+        supportingFiles.add(new SupportingFile("ModelInterface.mustache", toPackagePath(modelPackage, srcBasePath), "ModelInterface.php"));
         supportingFiles.add(new SupportingFile("HeaderSelector.mustache", toPackagePath(invokerPackage, srcBasePath), "HeaderSelector.php"));
         supportingFiles.add(new SupportingFile("Response.mustache", toPackagePath(invokerPackage, srcBasePath), "Response.php"));
         supportingFiles.add(new SupportingFile("composer.mustache", getPackagePath(), "composer.json"));
@@ -312,10 +323,21 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
         supportingFiles.add(new SupportingFile(".travis.yml", getPackagePath(), ".travis.yml"));
         supportingFiles.add(new SupportingFile(".php_cs", getPackagePath(), ".php_cs"));
         supportingFiles.add(new SupportingFile("git_push.sh.mustache", getPackagePath(), "git_push.sh"));
+
+        // Added by LBO from SymfonyServerCodegen.java
+        typeHintable = new HashSet<String>(
+            Arrays.asList(
+                "array",
+                "bool",
+                "float",
+                "int",
+                "string"
+            )
+        );
     }
 
     @Override
-    public String escapeReservedWord(String name) {           
+    public String escapeReservedWord(String name) {
         if(this.reservedWordsMappings().containsKey(name)) {
             return this.reservedWordsMappings().get(name);
         }
@@ -617,19 +639,21 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
                 example = "/path/to/file";
             }
             example = "\"" + escapeText(example) + "\"";
-        } else if ("Date".equalsIgnoreCase(type)) {
+        } else if ("\\Date".equalsIgnoreCase(type)) {
             if (example == null) {
                 example = "2013-10-20";
             }
             example = "new \\DateTime(\"" + escapeText(example) + "\")";
-        } else if ("DateTime".equalsIgnoreCase(type)) {
+        } else if ("\\DateTime".equalsIgnoreCase(type)) {
             if (example == null) {
                 example = "2013-10-20T19:20:30+01:00";
             }
             example = "new \\DateTime(\"" + escapeText(example) + "\")";
+        } else if ("object".equals(type)) {
+            example = "new \\stdClass";
         } else if (!languageSpecificPrimitives.contains(type)) {
             // type is a model class, e.g. User
-            example = "new " + type + "()";
+            example = "new " + getTypeDeclaration(type) + "()";
         } else {
             LOGGER.warn("Type " + type + " not handled properly in setParameterExampleValue");
         }
@@ -674,13 +698,18 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
             return varName;
         }
 
+        // for symbol, e.g. $, #
+        if (getSymbolName(name) != null) {
+            return getSymbolName(name).toUpperCase();
+        }
+
         // string
         String enumName = sanitizeName(underscore(name).toUpperCase());
         enumName = enumName.replaceFirst("^_", "");
         enumName = enumName.replaceFirst("_$", "");
 
-        if (enumName.matches("\\d.*")) { // starts with number
-            return "_" + enumName;
+        if (isReservedWord(enumName) || enumName.matches("\\d.*")) { // reserved word or starts with number
+            return escapeReservedWord(enumName);
         } else {
             return enumName;
         }
@@ -702,19 +731,71 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
 
     @Override
     public Map<String, Object> postProcessModels(Map<String, Object> objs) {
-        // process enum in models
-        return postProcessModelsEnum(objs);
+        objs = super.postProcessModels(objs);
+        objs = postProcessModelsEnum(objs);
+
+        ArrayList<Object> modelsArray = (ArrayList<Object>) objs.get("models");
+        Map<String, Object> models = (Map<String, Object>) modelsArray.get(0);
+        CodegenModel model = (CodegenModel) models.get("model");
+
+        // Simplify model var type
+        for (CodegenProperty var : model.vars) {
+            if (var.datatype != null) {
+                // Determine if the parameter type is supported as a type hint and make it available
+                // to the templating engine
+                String typeHint = getTypeHint(var.datatype);
+                String jmsType = getJmsType(var.datatype);
+                if (!typeHint.isEmpty()) {
+                    var.vendorExtensions.put("x-parameterType", typeHint);
+                }
+                if (!jmsType.isEmpty()) {
+                    var.vendorExtensions.put("x-jmsType", jmsType);
+                }
+
+                // Create a variable to display the correct data type in comments for models
+                var.vendorExtensions.put("x-commentType", var.datatype);
+
+                if (var.isBoolean) {
+                    var.getter = var.getter.replaceAll("^get", "is");
+                }
+            }
+        }
+
+        return objs;
     }
 
     @Override
     public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
         Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
         List<CodegenOperation> operationList = (List<CodegenOperation>) operations.get("operation");
+
         for (CodegenOperation op : operationList) {
             // for API test method name
             // e.g. public function test{{vendorExtensions.x-testOperationId}}()
             op.vendorExtensions.put("x-testOperationId", camelize(op.operationId));
+
+            // Loop through all input parameters to determine, whether we have to import something to
+            // make the input type available.
+            for (CodegenParameter param : op.allParams) {
+                // Determine if the parameter type is supported as a type hint and make it available
+                // to the templating engine
+                String typeHint = getTypeHint(param.dataType);
+                if (!typeHint.isEmpty()) {
+                    param.vendorExtensions.put("x-parameterType", typeHint);
+                }
+
+                // Create a variable to display the correct data type in comments for interfaces
+                param.vendorExtensions.put("x-commentType", param.dataType);
+            }
+
+            // Create a variable to display the correct return type in comments for interfaces
+            if (op.returnType != null) {
+                op.vendorExtensions.put("x-commentType", op.returnType);
+            } else {
+                op.vendorExtensions.put("x-commentType", "void");
+            }
         }
+
         return objs;
     }
 
@@ -727,6 +808,92 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
     @Override
     public String escapeUnsafeCharacters(String input) {
         return input.replace("*/", "*_/").replace("/*", "/_*");
+    }
+
+    // Added by LBO from SymfonyServerCodegen
+    protected String getTypeHint(String type) {
+        // Type hint array types
+        if (type.endsWith("[]")) {
+            return "array";
+        }
+
+        if (type.equals("double")) {
+            return "float";
+        }
+
+        // Check if the type is a native type that is type hintable in PHP
+        if (typeHintable.contains(type)) {
+            return type;
+        }
+
+        // Default includes are referenced by their fully-qualified class name (including namespace)
+        if (defaultIncludes.contains(type)) {
+            return type;
+        }
+
+        // Model classes are assumed to be imported (Same namespace) and we reference them by their class name
+        if (isModelClass(type)) {
+            // This parameter is an instance of a model
+            return extractSimpleName(type);
+        }
+
+        // PHP does not support type hinting for this parameter data type
+        return "";
+    }
+
+    // Added by LBO
+    protected String getJmsType(String type) {
+        if (type.startsWith("\\")) {
+            type = type.substring(1);
+        }
+
+        // Type hint array types
+        if (type.endsWith("[]")) {
+            type = type.substring(0, type.indexOf("["));
+
+            return "array<"+type+">";
+        }
+
+        if (type.equals("double")) {
+            return "float";
+        }
+
+        // Check if the type is a native type that is type hintable in PHP
+        if (typeHintable.contains(type)) {
+            if (type.equals("int")) {
+                type = "integer";
+            } else if (type.equals("bool")) {
+                type = "boolean";
+            }
+            return type;
+        }
+
+        // Default includes are referenced by their fully-qualified class name (including namespace)
+        if (defaultIncludesJms.contains(type)) {
+            return type;
+        }
+
+        if (isModelClass(type)) {
+            return type;
+        }
+
+        // Does not support type hinting for this parameter data type
+        return "";
+    }
+
+    // Added by LBO from SymfonyServerCodegen
+    protected Boolean isModelClass(String type) {
+        return Boolean.valueOf(type.contains(modelPackage()));
+    }
+
+    // Added by LBO from SymfonyServerCodegen
+    protected String extractSimpleName(String phpClassName) {
+        if (phpClassName == null) {
+            return null;
+        }
+
+        final int lastBackslashIndex = phpClassName.lastIndexOf('\\');
+        return phpClassName.substring(lastBackslashIndex + 1);
     }
 
 }

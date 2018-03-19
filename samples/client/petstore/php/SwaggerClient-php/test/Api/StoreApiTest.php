@@ -119,8 +119,6 @@ class StoreApiTest extends \PHPUnit_Framework_TestCase
     public function testGetInventory()
     {
         // initialize the API client
-        $config = (new Configuration())->setHost('http://petstore.swagger.io/v2');
-        $api_client = new ApiClient($config);
         $store_api = new StoreApi();
         // get inventory
         $get_response = $store_api->getInventory();

@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EnumArrays  {
   
@@ -48,8 +49,9 @@ public enum JustSymbolEnum {
     }
 }
 
-  @ApiModelProperty(example = "null", value = "")
+  @ApiModelProperty(value = "")
   private JustSymbolEnum justSymbol = null;
+
 
 @XmlType(name="ArrayEnumEnum")
 @XmlEnum(String.class)
@@ -83,15 +85,18 @@ public enum ArrayEnumEnum {
     }
 }
 
-  @ApiModelProperty(example = "null", value = "")
-  private List<ArrayEnumEnum> arrayEnum = new ArrayList<ArrayEnumEnum>();
-
+  @ApiModelProperty(value = "")
+  private List<ArrayEnumEnum> arrayEnum = null;
  /**
    * Get justSymbol
    * @return justSymbol
   **/
-  public JustSymbolEnum getJustSymbol() {
-    return justSymbol;
+  @JsonProperty("just_symbol")
+  public String getJustSymbol() {
+    if (justSymbol == null) {
+      return null;
+    }
+    return justSymbol.value();
   }
 
   public void setJustSymbol(JustSymbolEnum justSymbol) {
@@ -107,6 +112,7 @@ public enum ArrayEnumEnum {
    * Get arrayEnum
    * @return arrayEnum
   **/
+  @JsonProperty("array_enum")
   public List<ArrayEnumEnum> getArrayEnum() {
     return arrayEnum;
   }
