@@ -410,6 +410,21 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
         return super.getTypeDeclaration(name);
     }
 
+    /**
+     * Return the fully-qualified "Model" name for import
+     *
+     * @param name the name of the "Model"
+     * @return the fully-qualified "Model" name for import
+     */
+    @Override
+    public String toModelImport(String name) {
+        if ("".equals(modelPackage())) {
+            return name;
+        } else {
+            return modelPackage() + "\\" + name;
+        }
+    }
+
     @Override
     public String getSwaggerType(Property p) {
         String swaggerType = super.getSwaggerType(p);
