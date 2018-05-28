@@ -90,7 +90,8 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
                         "mixed",
                         "number",
                         "void",
-                        "byte")
+                        "byte",
+                        "array")
         );
 
         instantiationTypes.put("array", "array");
