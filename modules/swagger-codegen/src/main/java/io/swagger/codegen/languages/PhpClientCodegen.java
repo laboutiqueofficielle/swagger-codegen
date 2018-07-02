@@ -144,7 +144,8 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
         // Added by LBO from SymfonyServerCodegen
         defaultIncludes = new HashSet<String>(
             Arrays.asList(
-                "\\DateTime"
+                "\\DateTime",
+                "\\SplFileObject"
             )
         );
 
