@@ -761,7 +761,8 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
                 // Determine if the parameter type is supported as a type hint and make it available
                 // to the templating engine
                 String typeHint = getTypeHint(var.datatype);
-                String jmsType = getJmsType(var.datatype);
+                String jmsType = getJmsType(var.datatype, var.dataFormat);
+
                 if (!typeHint.isEmpty()) {
                     var.vendorExtensions.put("x-parameterType", typeHint);
                 }
@@ -859,9 +860,14 @@ public class PhpClientCodegen extends DefaultCodegen implements CodegenConfig {
     }
 
     // Added by LBO
-    protected String getJmsType(String type) {
+    protected String getJmsType(String type, String format) {
         if (type.startsWith("\\")) {
             type = type.substring(1);
+        }
+
+        if (format != null && format.equals("date")) {
+            type = "DateTime<'Y-m-d'>";
+            return type;
         }
 
         // Type hint array types
