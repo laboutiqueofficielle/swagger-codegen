@@ -499,6 +499,8 @@ public class AndroidClientCodegen extends DefaultCodegen implements CodegenConfi
                 (sourceFolder + File.separator + requestPackage).replace(".", File.separator), "PutRequest.java"));
         supportingFiles.add(new SupportingFile("request/deleterequest.mustache",
                 (sourceFolder + File.separator + requestPackage).replace(".", File.separator), "DeleteRequest.java"));
+        supportingFiles.add(new SupportingFile("request/inputrequest.mustache",
+                (sourceFolder + File.separator + requestPackage).replace(".", File.separator), "InputStreamRequest.java"));
         supportingFiles.add(new SupportingFile("request/patchrequest.mustache",
                 (sourceFolder + File.separator + requestPackage).replace(".", File.separator), "PatchRequest.java"));
         supportingFiles.add(new SupportingFile("auth/apikeyauth.mustache",

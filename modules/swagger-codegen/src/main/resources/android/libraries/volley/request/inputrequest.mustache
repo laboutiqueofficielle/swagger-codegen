@@ -1,0 +1,56 @@
+{{>licenseInfo}}
+package {{invokerPackage}}.request;
+
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.toolbox.HttpHeaderParser;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+public class InputStreamRequest extends Request<byte[]> {
+    private final Response.Listener<byte[]> mListener;
+    private String contentType;
+    private Map<String, String> apiHeaders;
+
+    public InputStreamRequest(String url, Map<String, String> apiHeaders, String contentType, Response.Listener<byte[]> listener, Response.ErrorListener errorListener) {
+        super(Method.GET, url, errorListener);
+        setShouldCache(false);
+        mListener = listener;
+        this.contentType = contentType;
+        this.apiHeaders = apiHeaders;
+    }
+
+    @Override
+    protected Response<byte[]> parseNetworkResponse(NetworkResponse response) {
+        return Response.success(response.data, HttpHeaderParser.parseCacheHeaders(response));
+    }
+
+    @Override
+    protected void deliverResponse(byte[] response) {
+        mListener.onResponse(response);
+    }
+
+    /* (non-Javadoc)
+    * @see com.android.volley.Request#getHeaders()
+    */
+    @Override
+    public Map<String, String> getHeaders() throws AuthFailureError {
+        Map<String, String> headers = super.getHeaders();
+        if (headers == null || headers.equals(Collections.emptyMap())) {
+            headers = new HashMap<>();
+        }
+        if (apiHeaders != null && !apiHeaders.equals(Collections.emptyMap())) {
+            headers.putAll(apiHeaders);
+        }
+        if (contentType != null) {
+            headers.put("Content-Type", contentType);
+        }
+
+        return headers;
+    }
+}
