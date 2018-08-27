@@ -272,7 +272,7 @@ public class AndroidClientCodegen extends DefaultCodegen implements CodegenConfi
      * @param p Swagger property object
      * @return string presentation of the default value of the property
      */
-    @SuppressWarnings("static-method")
+    @Override
     public String toDefaultValue(Property p) {
         if (p instanceof IntegerProperty) {
             IntegerProperty dp = (IntegerProperty) p;
