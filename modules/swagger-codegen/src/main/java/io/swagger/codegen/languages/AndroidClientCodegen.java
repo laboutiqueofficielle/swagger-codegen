@@ -307,7 +307,7 @@ public class AndroidClientCodegen extends DefaultCodegen implements CodegenConfi
          else if (p instanceof StringProperty) {
             StringProperty dp = (StringProperty) p;
             if (dp.getDefault() != null) {
-                return dp.getDefault();
+                return "'" + dp.getDefault() + "'";
             }
             return "null";
         }
