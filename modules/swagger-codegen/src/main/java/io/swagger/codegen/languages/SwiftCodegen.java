@@ -381,7 +381,8 @@ public class SwiftCodegen extends DefaultCodegen implements CodegenConfig {
             }
             return "null";
         }
-        return super.toDefaultValue(p);
+
+        return null;
     }
 
     @Override
