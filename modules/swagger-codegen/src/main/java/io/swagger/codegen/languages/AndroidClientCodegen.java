@@ -7,13 +7,7 @@ import io.swagger.codegen.CodegenParameter;
 import io.swagger.codegen.CodegenType;
 import io.swagger.codegen.DefaultCodegen;
 import io.swagger.codegen.SupportingFile;
-import io.swagger.models.properties.ArrayProperty;
-import io.swagger.models.properties.MapProperty;
-import io.swagger.models.properties.Property;
-import io.swagger.models.properties.DoubleProperty;
-import io.swagger.models.properties.FloatProperty;
-import io.swagger.models.properties.IntegerProperty;
-import io.swagger.models.properties.LongProperty;
+import io.swagger.models.properties.*;
 
 import java.io.File;
 import java.util.Arrays;
@@ -300,6 +294,20 @@ public class AndroidClientCodegen extends DefaultCodegen implements CodegenConfi
             FloatProperty dp = (FloatProperty) p;
             if (dp.getDefault() != null) {
                 return dp.getDefault().toString() + "f";
+            }
+            return "null";
+        }
+         else if (p instanceof BooleanProperty) {
+            BooleanProperty dp = (BooleanProperty) p;
+            if (dp.getDefault() != null) {
+                return dp.getDefault().toString();
+            }
+            return "null";
+        }
+         else if (p instanceof StringProperty) {
+            StringProperty dp = (StringProperty) p;
+            if (dp.getDefault() != null) {
+                return dp.getDefault();
             }
             return "null";
         }
