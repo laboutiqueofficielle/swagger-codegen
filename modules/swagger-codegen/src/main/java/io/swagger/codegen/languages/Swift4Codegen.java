@@ -449,39 +449,39 @@ public class Swift4Codegen extends DefaultCodegen implements CodegenConfig {
             if (dp.getDefault() != null) {
                 return dp.getDefault().toString();
             }
-            return "null";
+            return null;
         } else if (p instanceof LongProperty) {
             LongProperty dp = (LongProperty) p;
             if (dp.getDefault() != null) {
-                return dp.getDefault().toString()+"l";
+                return dp.getDefault().toString();
             }
-            return "null";
+            return null;
         } else if (p instanceof DoubleProperty) {
             DoubleProperty dp = (DoubleProperty) p;
             if (dp.getDefault() != null) {
-                return dp.getDefault().toString() + "d";
+                return dp.getDefault().toString();
             }
-            return "null";
+            return null;
         } else if (p instanceof FloatProperty) {
             FloatProperty dp = (FloatProperty) p;
             if (dp.getDefault() != null) {
-                return dp.getDefault().toString() + "f";
+                return dp.getDefault().toString();
             }
-            return "null";
+            return null;
         }
         else if (p instanceof BooleanProperty) {
             BooleanProperty dp = (BooleanProperty) p;
             if (dp.getDefault() != null) {
                 return dp.getDefault().toString();
             }
-            return "null";
+            return null;
         }
         else if (p instanceof StringProperty) {
             StringProperty dp = (StringProperty) p;
             if (dp.getDefault() != null) {
-                return "'" + dp.getDefault() + "'";
+                return "\"" + dp.getDefault() + "\"";
             }
-            return "null";
+            return null;
         }
 
         return null;
