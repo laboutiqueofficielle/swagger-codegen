@@ -664,7 +664,7 @@ public class ApiClient {
             return "";
         } else if (param instanceof Date) {
             return formatDatetime((Date) param);
-        } else if ({{#joda}}|| param instanceof DateTime || param instanceof LocalDate{{/joda}}{{#jsr310}}|| param instanceof OffsetDateTime || param instanceof LocalDate{{/jsr310}}) {
+        } else if ({{#joda}}param instanceof DateTime || param instanceof LocalDate{{/joda}}{{#jsr310}}|| param instanceof OffsetDateTime || param instanceof LocalDate{{/jsr310}}) {
             //Serialize to json string and remove the " enclosing characters
             String jsonStr = json.serialize(param);
             return jsonStr.substring(1, jsonStr.length() - 1);
