@@ -1,22 +1,20 @@
 package io.swagger.codegen.languages;
 
+import io.swagger.models.parameters.Parameter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 
 import io.swagger.codegen.CliOption;
 import io.swagger.codegen.CodegenConfig;
 import io.swagger.codegen.CodegenConstants;
+import io.swagger.codegen.CodegenConstants.ENUM_PROPERTY_NAMING_TYPE;
 import io.swagger.codegen.CodegenModel;
 import io.swagger.codegen.CodegenProperty;
 import io.swagger.codegen.CodegenType;
 import io.swagger.codegen.DefaultCodegen;
+import io.swagger.codegen.utils.EnumPropertyNamingUtils;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.BooleanProperty;
 import io.swagger.models.properties.DateProperty;
@@ -31,9 +29,16 @@ import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
 
 public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen implements CodegenConfig {
+    private static final String X_DISCRIMINATOR_TYPE = "x-discriminator-value";
     private static final String UNDEFINED_VALUE = "undefined";
 
     protected String modelPropertyNaming= "camelCase";
+    /**
+     * Enum variables are PascalCase by default.
+     * ref: https://basarat.gitbooks.io/typescript/content/docs/enums.html
+     */
+    protected ENUM_PROPERTY_NAMING_TYPE enumPropertyNaming = ENUM_PROPERTY_NAMING_TYPE.PascalCase;
+
     protected Boolean supportsES6 = true;
     protected HashSet<String> languageGenericTypes;
 
@@ -104,6 +109,7 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen imp
         typeMapping.put("Error", "Error");
 
         cliOptions.add(new CliOption(CodegenConstants.MODEL_PROPERTY_NAMING, CodegenConstants.MODEL_PROPERTY_NAMING_DESC).defaultValue("camelCase"));
+        cliOptions.add(new CliOption(CodegenConstants.ENUM_PROPERTY_NAMING, CodegenConstants.ENUM_PROPERTY_NAMING_DESC).defaultValue(enumPropertyNaming.name()));
         cliOptions.add(new CliOption(CodegenConstants.SUPPORTS_ES6, CodegenConstants.SUPPORTS_ES6_DESC).defaultValue("false"));
 
     }
@@ -114,6 +120,9 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen imp
 
         if (additionalProperties.containsKey(CodegenConstants.MODEL_PROPERTY_NAMING)) {
             setModelPropertyNaming((String) additionalProperties.get(CodegenConstants.MODEL_PROPERTY_NAMING));
+        }
+        if (additionalProperties.containsKey(CodegenConstants.ENUM_PROPERTY_NAMING)) {
+            setEnumPropertyNaming((String) additionalProperties.get(CodegenConstants.ENUM_PROPERTY_NAMING));
         }
 
         if (additionalProperties.containsKey(CodegenConstants.SUPPORTS_ES6)) {
@@ -234,12 +243,107 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen imp
         return super.getTypeDeclaration(p);
     }
 
+
+    @Override
+    protected String getParameterDataType(Parameter parameter, Property p) {
+        // handle enums of various data types
+        Property inner;
+        if (p instanceof ArrayProperty) {
+            ArrayProperty mp1 = (ArrayProperty) p;
+            inner = mp1.getItems();
+            return this.getSwaggerType(p) + "<" + this.getParameterDataType(parameter, inner) + ">";
+        } else if (p instanceof MapProperty) {
+            MapProperty mp = (MapProperty) p;
+            inner = mp.getAdditionalProperties();
+            return "{ [key: string]: " + this.getParameterDataType(parameter, inner) + "; }";
+        } else if (p instanceof StringProperty) {
+            // Handle string enums
+            StringProperty sp = (StringProperty) p;
+            if (sp.getEnum() != null) {
+                return enumValuesToEnumTypeUnion(sp.getEnum(), "string");
+            }
+        } else if (p instanceof IntegerProperty) {
+            // Handle integer enums
+            IntegerProperty sp = (IntegerProperty) p;
+            if (sp.getEnum() != null) {
+                return numericEnumValuesToEnumTypeUnion(new ArrayList<Number>(sp.getEnum()));
+            }
+        } else if (p instanceof LongProperty) {
+            // Handle long enums
+            LongProperty sp = (LongProperty) p;
+            if (sp.getEnum() != null) {
+                return numericEnumValuesToEnumTypeUnion(new ArrayList<Number>(sp.getEnum()));
+            }
+        } else if (p instanceof DoubleProperty) {
+            // Handle double enums
+            DoubleProperty sp = (DoubleProperty) p;
+            if (sp.getEnum() != null) {
+                return numericEnumValuesToEnumTypeUnion(new ArrayList<Number>(sp.getEnum()));
+            }
+        } else if (p instanceof FloatProperty) {
+            // Handle float enums
+            FloatProperty sp = (FloatProperty) p;
+            if (sp.getEnum() != null) {
+                return numericEnumValuesToEnumTypeUnion(new ArrayList<Number>(sp.getEnum()));
+            }
+        } else if (p instanceof DateProperty) {
+            // Handle date enums
+            DateProperty sp = (DateProperty) p;
+            if (sp.getEnum() != null) {
+                return enumValuesToEnumTypeUnion(sp.getEnum(), "string");
+            }
+        } else if (p instanceof DateTimeProperty) {
+            // Handle datetime enums
+            DateTimeProperty sp = (DateTimeProperty) p;
+            if (sp.getEnum() != null) {
+                return enumValuesToEnumTypeUnion(sp.getEnum(), "string");
+            }
+        }
+        return this.getTypeDeclaration(p);
+    }
+
+    /**
+     * Converts a list of strings to a literal union for representing enum values as a type.
+     * Example output: 'available' | 'pending' | 'sold'
+     *
+     * @param values list of allowed enum values
+     * @param dataType either "string" or "number"
+     * @return
+     */
+    protected String enumValuesToEnumTypeUnion(List<String> values, String dataType) {
+        StringBuilder b = new StringBuilder();
+        boolean isFirst = true;
+        for (String value: values) {
+            if (!isFirst) {
+                b.append(" | ");
+            }
+            b.append(toEnumValue(value.toString(), dataType));
+            isFirst = false;
+        }
+        return b.toString();
+    }
+
+    /**
+     * Converts a list of numbers to a literal union for representing enum values as a type.
+     * Example output: 3 | 9 | 55
+     *
+     * @param values
+     * @return
+     */
+    protected String numericEnumValuesToEnumTypeUnion(List<Number> values) {
+        List<String> stringValues = new ArrayList<>();
+        for (Number value: values) {
+            stringValues.add(value.toString());
+        }
+        return enumValuesToEnumTypeUnion(stringValues, "number");
+    }
+
     @Override
     public String toDefaultValue(Property p) {
         if (p instanceof StringProperty) {
             StringProperty sp = (StringProperty) p;
             if (sp.getDefault() != null) {
-                return "\"" + sp.getDefault() + "\"";
+                return "'" + sp.getDefault() + "'";
             }
             return UNDEFINED_VALUE;
         } else if (p instanceof BooleanProperty) {
@@ -317,8 +421,19 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen imp
         }
     }
 
+    /**
+     * @param enumPropertyNamingType The string representation of the naming convention, as defined by {@link ENUM_PROPERTY_NAMING_TYPE}
+     */
+    public void setEnumPropertyNaming(final String enumPropertyNamingType) {
+        enumPropertyNaming = EnumPropertyNamingUtils.parseEnumPropertyNaming(enumPropertyNamingType);
+    }
+
     public String getModelPropertyNaming() {
         return this.modelPropertyNaming;
+    }
+
+    public ENUM_PROPERTY_NAMING_TYPE getEnumPropertyNaming() {
+        return enumPropertyNaming;
     }
 
     public String getNameUsingModelPropertyNaming(String name) {
@@ -356,7 +471,7 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen imp
 
         // for symbol, e.g. $, #
         if (getSymbolName(name) != null) {
-            return camelize(getSymbolName(name));
+            return EnumPropertyNamingUtils.applyEnumPropertyCapitalisation(getSymbolName(name), enumPropertyNaming);
         }
 
         // number
@@ -374,9 +489,7 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen imp
         enumName = enumName.replaceFirst("^_", "");
         enumName = enumName.replaceFirst("_$", "");
 
-        // camelize the enum variable name
-        // ref: https://basarat.gitbooks.io/typescript/content/docs/enums.html
-        enumName = camelize(enumName);
+        enumName = EnumPropertyNamingUtils.applyEnumPropertyCapitalisation(enumName, enumPropertyNaming);
 
         if (enumName.matches("\\d.*")) { // starts with number
             return "_" + enumName;
@@ -404,15 +517,42 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen imp
             Map<String, Object> mo = (Map<String, Object>) _mo;
             CodegenModel cm = (CodegenModel) mo.get("model");
             cm.imports = new TreeSet(cm.imports);
+            // name enum with model name, e.g. StatusEnum => Pet.StatusEnum
             for (CodegenProperty var : cm.vars) {
-                // name enum with model name, e.g. StatuEnum => Pet.StatusEnum
                 if (Boolean.TRUE.equals(var.isEnum)) {
                     var.datatypeWithEnum = var.datatypeWithEnum.replace(var.enumName, cm.classname + "." + var.enumName);
+                }
+            }
+            if (cm.parent != null) {
+                for (CodegenProperty var : cm.allVars) {
+                    if (Boolean.TRUE.equals(var.isEnum)) {
+                        var.datatypeWithEnum = var.datatypeWithEnum
+                            .replace(var.enumName, cm.classname + "." + var.enumName);
+                    }
                 }
             }
         } 
 
         return objs;
+    }
+
+    @Override
+    public Map<String, Object> postProcessAllModels(Map<String, Object> objs) {
+        Map<String, Object> result = super.postProcessAllModels(objs);
+
+        for (Map.Entry<String, Object> entry : result.entrySet()) {
+            Map<String, Object> inner = (Map<String, Object>) entry.getValue();
+            List<Map<String, Object>> models = (List<Map<String, Object>>) inner.get("models");
+            for (Map<String, Object> mo : models) {
+                CodegenModel cm = (CodegenModel) mo.get("model");
+                if (cm.discriminator != null && cm.children != null) {
+                    for (CodegenModel child : cm.children) {
+                        this.setDiscriminatorValue(child, cm.discriminator, this.getDiscriminatorValue(child));
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     public void setSupportsES6(Boolean value) {
@@ -421,6 +561,25 @@ public abstract class AbstractTypeScriptClientCodegen extends DefaultCodegen imp
 
     public Boolean getSupportsES6() {
         return supportsES6;
+    }
+
+    private void setDiscriminatorValue(CodegenModel model, String baseName, String value) {
+        for (CodegenProperty prop : model.allVars) {
+            if (prop.baseName.equals(baseName)) {
+                prop.discriminatorValue = value;
+            }
+        }
+        if (model.children != null) {
+            final boolean newDiscriminator = model.discriminator != null;
+            for (CodegenModel child : model.children) {
+                this.setDiscriminatorValue(child, baseName, newDiscriminator ? value : this.getDiscriminatorValue(child));
+            }
+        }
+    }
+
+    private String getDiscriminatorValue(CodegenModel model) {
+        return model.vendorExtensions.containsKey(X_DISCRIMINATOR_TYPE) ?
+            (String) model.vendorExtensions.get(X_DISCRIMINATOR_TYPE) : model.classname;
     }
 
     @Override

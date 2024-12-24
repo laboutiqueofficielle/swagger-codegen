@@ -1,0 +1,206 @@
+<?php
+{{>partial_header}}
+
+namespace {{invokerPackage}};
+
+use Lbo\PhpSdkAbstract\ResponseInterface;
+
+/**
+ * Class Response
+ */
+class Response implements ResponseInterface
+{
+    /**
+     * @var mixed
+     */
+    protected $response;
+
+    /**
+     * @var int
+     */
+    protected $statusCode;
+
+    /**
+     * @var array
+     */
+    protected $headers;
+
+    /**
+     * Response constructor.
+     *
+     * @param mixed $response   The response body
+     * @param int   $statusCode The HTTP status code
+     * @param array $headers    The response headers
+     */
+    public function __construct($response, int $statusCode, array $headers)
+    {
+        $this->response = $response;
+        $this->statusCode = (int) $statusCode;
+        $this->headers = $headers;
+    }
+
+    /**
+     * Get the "response" property
+     *
+     * @return mixed
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
+     * Set the "response" property
+     *
+     * @param mixed $response
+     *
+     * @return Response
+     */
+    public function setResponse($response): Response
+    {
+        $this->response = $response;
+
+        return $this;
+    }
+
+    /**
+     * Get the "statusCode" property
+     *
+     * @return int
+     */
+    public function getStatusCode(): int
+    {
+        return $this->statusCode;
+    }
+
+    /**
+     * Set the "statusCode" property
+     *
+     * @param int $statusCode
+     *
+     * @return Response
+     */
+    public function setStatusCode(int $statusCode): Response
+    {
+        $this->statusCode = $statusCode;
+
+        return $this;
+    }
+
+    /**
+     * Get the "headers" property
+     *
+     * @return array
+     */
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    /**
+     * Set the "headers" property
+     *
+     * @param array $headers
+     *
+     * @return Response
+     */
+    public function setHeaders(array $headers): Response
+    {
+        $this->headers = $headers;
+
+        return $this;
+    }
+
+    /**
+     * Check if response status code match expected code(s)
+     *
+     * @param array|int $code The HTTP code(s) to compare with the response one
+     *
+     * @return bool
+     */
+    public function isExpected($code): bool
+    {
+        if (!is_array($code)) {
+            return $this->statusCode === (int) $code;
+        }
+
+        return in_array($this->statusCode, $code);
+    }
+
+    /**
+     * Check if response status code match given code(s)
+     *
+     * @param array|int $code The HTTP code(s) to compare with the response one
+     *
+     * @return bool
+     */
+    public function isEqual($code): bool
+    {
+        return $this->isExpected($code);
+    }
+
+    /**
+     * Check whether the response is an instance of ErrorModel
+     *
+     * @return bool
+     */
+    public function isErrorModel(): bool
+    {
+        $model = 'ErrorModel';
+        $class = is_object($this->response) ? get_class($this->response) : '';
+        $length = mb_strlen($model);
+
+        return substr($class, -$length) === $model;
+    }
+
+    /**
+     * Get message from response object if exists, null otherwise
+     *
+     * @return string|null
+     */
+    public function getMessage(): ?string
+    {
+        if ((is_string($this->response) || is_object($this->response)) && method_exists($this->response, 'getMessage')) {
+            return $this->response->getMessage();
+        }
+
+        return null;
+    }
+
+    /**
+     * Get form errors from response object if exists, null otherwise
+     *
+     * @return object|null
+     */
+    public function getFormErrors()
+    {
+        if ((is_string($this->response) || is_object($this->response)) && method_exists($this->response, 'getFormErrors')) {
+            return $this->response->getFormErrors();
+        }
+
+        return null;
+    }
+
+    /**
+     * Get all message from response object if exists, null otherwise
+     *
+     * @return string|null
+     */
+    public function getFullErrorMessage(): ?string
+    {
+        $message = '';
+        if ($this->getMessage()) {
+            $message .= 'ERROR : '.$this->getMessage();
+        }
+
+        if ($this->getFormErrors()) {
+            $message .= ' | FORM ERROR : '.serialize($this->getFormErrors());
+        }
+
+        if (!empty($message)) {
+            return $message;
+        }
+
+        return false;
+    }
+}

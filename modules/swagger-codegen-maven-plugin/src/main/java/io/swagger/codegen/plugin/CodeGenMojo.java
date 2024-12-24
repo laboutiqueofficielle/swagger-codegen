@@ -2,12 +2,12 @@ package io.swagger.codegen.plugin;
 
 /*
  * Copyright 2001-2005 The Apache Software Foundation.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -50,7 +50,7 @@ import io.swagger.codegen.config.CodegenConfigurator;
 /**
  * Goal which generates client/server code from a swagger json/yaml definition.
  */
-@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
+@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, threadSafe = true)
 public class CodeGenMojo extends AbstractMojo {
 
     @Parameter(name = "verbose", required = false, defaultValue = "false")
@@ -173,6 +173,12 @@ public class CodeGenMojo extends AbstractMojo {
     private String modelNameSuffix;
 
     /**
+     * Adds a prefix for all generated local variables
+     */
+    @Parameter(name = "localVariablePrefix", required = false)
+    private String localVariablePrefix;
+
+    /**
      * Sets an optional ignoreFileOverride path
      */
     @Parameter(name = "ignoreFileOverride", required = false)
@@ -210,6 +216,9 @@ public class CodeGenMojo extends AbstractMojo {
 
     /**
      * A map of additional properties that can be referenced by the mustache templates
+     * <additionalProperties>
+     *     <additionalProperty>key=value</additionalProperty>
+     * </additionalProperties>
      */
     @Parameter(name = "additionalProperties")
     private List<String> additionalProperties;
@@ -218,7 +227,7 @@ public class CodeGenMojo extends AbstractMojo {
      * A map of reserved names and how they should be escaped
      */
     @Parameter(name = "reservedWordsMappings")
-    private List<String> reservedWordsMappings;    
+    private List<String> reservedWordsMappings;
 
     /**
      * Generate the apis
@@ -312,6 +321,13 @@ public class CodeGenMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
+        // Using the naive approach for achieving thread safety
+        synchronized (CodeGenMojo.class) {
+            execute_();
+        }
+    }
+
+    protected void execute_() throws MojoExecutionException {
 
         if (skip) {
             getLog().info("Code generation is skipped.");
@@ -399,6 +415,10 @@ public class CodeGenMojo extends AbstractMojo {
             configurator.setModelNameSuffix(modelNameSuffix);
         }
 
+        if (isNotEmpty(localVariablePrefix)) {
+            configurator.setLocalVariablePrefix(localVariablePrefix);
+        }
+
         if (null != templateDirectory) {
             configurator.setTemplateDir(templateDirectory.getAbsolutePath());
         }
@@ -466,32 +486,32 @@ public class CodeGenMojo extends AbstractMojo {
         }
 
         //Apply Instantiation Types
-        if (instantiationTypes != null && !configOptions.containsKey("instantiation-types")) {
+        if (instantiationTypes != null && (configOptions == null || !configOptions.containsKey("instantiation-types"))) {
             applyInstantiationTypesKvpList(instantiationTypes, configurator);
         }
 
         //Apply Import Mappings
-        if (importMappings != null && !configOptions.containsKey("import-mappings")) {
+        if (importMappings != null && (configOptions == null || !configOptions.containsKey("import-mappings"))) {
             applyImportMappingsKvpList(importMappings, configurator);
         }
 
         //Apply Type Mappings
-        if (typeMappings != null && !configOptions.containsKey("type-mappings")) {
+        if (typeMappings != null && (configOptions == null || !configOptions.containsKey("type-mappings"))) {
             applyTypeMappingsKvpList(typeMappings, configurator);
         }
 
         //Apply Language Specific Primitives
-        if (languageSpecificPrimitives != null && !configOptions.containsKey("language-specific-primitives")) {
+        if (languageSpecificPrimitives != null && (configOptions == null || !configOptions.containsKey("language-specific-primitives"))) {
             applyLanguageSpecificPrimitivesCsvList(languageSpecificPrimitives, configurator);
         }
 
         //Apply Additional Properties
-        if (additionalProperties != null && !configOptions.containsKey("additional-properties")) {
+        if (additionalProperties != null && (configOptions == null || !configOptions.containsKey("additional-properties"))) {
             applyAdditionalPropertiesKvpList(additionalProperties, configurator);
         }
 
         //Apply Reserved Words Mappings
-        if (reservedWordsMappings != null && !configOptions.containsKey("reserved-words-mappings")) {
+        if (reservedWordsMappings != null && (configOptions == null || !configOptions.containsKey("reserved-words-mappings"))) {
             applyReservedWordsMappingsKvpList(reservedWordsMappings, configurator);
         }
 

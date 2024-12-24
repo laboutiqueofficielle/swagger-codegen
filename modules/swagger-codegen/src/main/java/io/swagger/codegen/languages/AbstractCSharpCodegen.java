@@ -1,14 +1,30 @@
 package io.swagger.codegen.languages;
 
+import com.google.common.collect.ImmutableMap;
+import com.samskivert.mustache.Mustache;
 import io.swagger.codegen.*;
+import io.swagger.codegen.mustache.*;
 import io.swagger.codegen.utils.ModelUtils;
+import io.swagger.models.Model;
+import io.swagger.models.ModelImpl;
+import io.swagger.models.Operation;
+import io.swagger.models.Path;
+import io.swagger.models.Response;
+import io.swagger.models.Swagger;
+import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class AbstractCSharpCodegen extends DefaultCodegen implements CodegenConfig {
 
@@ -19,9 +35,10 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
     protected boolean useDateTimeOffsetFlag = false;
     protected boolean useCollection = false;
     protected boolean returnICollection = false;
+    protected boolean preserveNewLines = false;
     protected boolean netCoreProjectFileFlag = false;
 
-    protected String modelPropertyNaming = "PascalCase";
+    protected String modelPropertyNaming = CodegenConstants.MODEL_PROPERTY_NAMING_TYPE.PascalCase.name();
 
     protected String packageVersion = "1.0.0";
     protected String packageName = "IO.Swagger";
@@ -67,14 +84,15 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
                 Arrays.asList("IDictionary")
         );
 
-        setReservedWordsLowerCase(
+        // NOTE: C# uses camel cased reserved words, while models are title cased. We don't want lowercase comparisons.
+        reservedWords.addAll(
                 Arrays.asList(
                         // set "client" as a reserved word to avoid conflicts with IO.Swagger.Client
                         // this is a workaround and can be removed if c# api client is updated to use
                         // fully qualified name
-                        "client", "parameter",
+                        "Client", "client", "parameter", "File", "file",
                         // local variable names in API methods (endpoints)
-                        "localVarPath", "localVarPathParams", "localVarQueryParams", "localVarHeaderParams", 
+                        "localVarPath", "localVarPathParams", "localVarQueryParams", "localVarHeaderParams",
                         "localVarFormParams", "localVarFileParams", "localVarStatusCode", "localVarResponse",
                         "localVarPostBody", "localVarHttpHeaderAccepts", "localVarHttpHeaderAccept",
                         "localVarHttpContentTypes", "localVarHttpContentType",
@@ -172,18 +190,6 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
         this.netCoreProjectFileFlag = flag;
     }
 
-    protected void addOption(String key, String description, String defaultValue) {
-        CliOption option = new CliOption(key, description);
-        if (defaultValue != null) option.defaultValue(defaultValue);
-        cliOptions.add(option);
-    }
-
-    protected void addSwitch(String key, String description, Boolean defaultValue) {
-        CliOption option = CliOption.newBoolean(key, description);
-        if (defaultValue != null) option.defaultValue(defaultValue.toString());
-        cliOptions.add(option);
-    }
-
     public void useDateTimeOffset(boolean flag) {
         this.useDateTimeOffsetFlag = flag;
         if (flag) typeMapping.put("datetime", "DateTimeOffset?");
@@ -218,14 +224,14 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
         if (additionalProperties.containsKey(CodegenConstants.INVOKER_PACKAGE)) {
             LOGGER.warn(String.format("%s is not used by C# generators. Please use %s", CodegenConstants.INVOKER_PACKAGE, CodegenConstants.PACKAGE_NAME));
         }
-        
+
         // {{packageTitle}}
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_TITLE)) {
             setPackageTitle((String) additionalProperties.get(CodegenConstants.PACKAGE_TITLE));
         } else {
             additionalProperties.put(CodegenConstants.PACKAGE_TITLE, packageTitle);
         }
-        
+
         // {{packageProductName}}
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_PRODUCTNAME)) {
             setPackageProductName((String) additionalProperties.get(CodegenConstants.PACKAGE_PRODUCTNAME));
@@ -239,14 +245,14 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
         } else {
             additionalProperties.put(CodegenConstants.PACKAGE_DESCRIPTION, packageDescription);
         }
-        
+
         // {{packageCompany}}
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_COMPANY)) {
             setPackageCompany((String) additionalProperties.get(CodegenConstants.PACKAGE_COMPANY));
         } else {
             additionalProperties.put(CodegenConstants.PACKAGE_COMPANY, packageCompany);
         }
-        
+
         // {{packageCopyright}}
         if (additionalProperties.containsKey(CodegenConstants.PACKAGE_COPYRIGHT)) {
             setPackageCopyright((String) additionalProperties.get(CodegenConstants.PACKAGE_COPYRIGHT));
@@ -260,7 +266,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
         } else {
             additionalProperties.put(CodegenConstants.PACKAGE_AUTHORS, packageAuthors);
         }
-        
+
         // {{useDateTimeOffset}}
         if (additionalProperties.containsKey(CodegenConstants.USE_DATETIME_OFFSET)) {
             useDateTimeOffset(convertPropertyToBooleanAndWriteBack(CodegenConstants.USE_DATETIME_OFFSET));
@@ -292,6 +298,10 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
             additionalProperties.put(CodegenConstants.NETCORE_PROJECT_FILE, netCoreProjectFileFlag);
         }
 
+        if (additionalProperties.containsKey(CodegenConstants.PRESERVE_COMMENT_NEWLINES)) {
+            setPreserveNewLines(Boolean.valueOf(additionalProperties.get(CodegenConstants.PRESERVE_COMMENT_NEWLINES).toString()));
+        }
+
         if (additionalProperties.containsKey(CodegenConstants.INTERFACE_PREFIX)) {
             String useInterfacePrefix = additionalProperties.get(CodegenConstants.INTERFACE_PREFIX).toString();
             if("false".equals(useInterfacePrefix.toLowerCase())) {
@@ -304,6 +314,32 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
 
         // This either updates additionalProperties with the above fixes, or sets the default if the option was not specified.
         additionalProperties.put(CodegenConstants.INTERFACE_PREFIX, interfacePrefix);
+
+        addMustacheLambdas(additionalProperties);
+    }
+
+    private void addMustacheLambdas(Map<String, Object> objs) {
+
+        Map<String, Mustache.Lambda> lambdas = new ImmutableMap.Builder<String, Mustache.Lambda>()
+                .put("lowercase", new LowercaseLambda().generator(this))
+                .put("uppercase", new UppercaseLambda())
+                .put("titlecase", new TitlecaseLambda())
+                .put("camelcase", new CamelCaseLambda().generator(this))
+                .put("camelcase_param", new CamelCaseLambda().generator(this).escapeAsParamName(true))
+                .put("indented", new IndentedLambda())
+                .put("indented_8", new IndentedLambda(8, " "))
+                .put("indented_12", new IndentedLambda(12, " "))
+                .put("indented_16", new IndentedLambda(16, " "))
+                .build();
+
+        if (objs.containsKey("lambda")) {
+            LOGGER.warn("An property named 'lambda' already exists. Mustache lambdas renamed from 'lambda' to '_lambda'. " +
+                    "You'll likely need to use a custom template, " +
+                    "see https://github.com/swagger-api/swagger-codegen#modifying-the-client-library-format. ");
+            objs.put("_lambda", lambdas);
+        } else {
+            objs.put("lambda", lambdas);
+        }
     }
 
     @Override
@@ -350,7 +386,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
      * When working with enums, we can't always assume a RefModel is a nullable type (where default(YourType) == null),
      * so this post processing runs through all models to find RefModel'd enums. Then, it runs through all vars and modifies
      * those vars referencing RefModel'd enums to work the same as inlined enums rather than as objects.
-     * @param models
+     * @param models processed models to be further processed for enum references
      */
     @SuppressWarnings({ "unchecked" })
     private void postProcessEnumRefs(final Map<String, Object> models) {
@@ -372,7 +408,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
                         // This is different in C# than most other generators, because enums in C# are compiled to integral types,
                         // while enums in many other languages are true objects.
                         CodegenModel refModel = enumRefs.get(var.datatype);
-                        var.allowableValues = refModel.allowableValues;
+                        var.allowableValues = new HashMap<>(refModel.allowableValues);
                         var.isEnum = true;
 
                         updateCodegenPropertyEnum(var);
@@ -432,6 +468,14 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
         }
     }
 
+    public CodegenModel fromModel(String name, Model model, Map<String, Model> allDefinitions) {
+        final CodegenModel codegenModel = super.fromModel(name, model, allDefinitions);
+        if (typeMapping.containsKey(name.toLowerCase()) && isReservedWord(name)) {
+            typeMapping.remove(name.toLowerCase());
+        }
+        return codegenModel;
+    }
+
     /**
      * Update codegen property's enum by adding "enumVars" (with name and value)
      *
@@ -472,6 +516,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
     public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
         super.postProcessOperations(objs);
         if (objs != null) {
+            boolean hasAuthMethods = false;
             Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
             if (operations != null) {
                 List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
@@ -520,8 +565,13 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
                     }
 
                     processOperation(operation);
+
+                    if (operation.hasAuthMethods) {
+                        hasAuthMethods = true;
+                    }
                 }
             }
+            objs.put("hasAuthMethods", hasAuthMethods);
         }
 
         return objs;
@@ -608,10 +658,10 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
         }
 
         return name;
-    }   
+    }
 
     @Override
-    public String escapeReservedWord(String name) {           
+    public String escapeReservedWord(String name) {
         if(this.reservedWordsMappings().containsKey(name)) {
             return this.reservedWordsMappings().get(name);
         }
@@ -719,6 +769,12 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
     }
 
     @Override
+    protected boolean isReservedWord(String word) {
+        // NOTE: This differs from super's implementation in that C# does _not_ want case insensitive matching.
+        return reservedWords.contains(word);
+    }
+
+    @Override
     public String getSwaggerType(Property p) {
         String swaggerType = super.getSwaggerType(p);
         String type;
@@ -727,6 +783,8 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
             swaggerType = ""; // set swagger type to empty string if null
         }
 
+        // NOTE: typeMapping here supports things like string/String, long/Long, datetime/DateTime as lowercase keys.
+        //       Should we require explicit casing here (values are not insensitive).
         // TODO avoid using toLowerCase as typeMapping should be case-sensitive
         if (typeMapping.containsKey(swaggerType.toLowerCase())) {
             type = typeMapping.get(swaggerType.toLowerCase());
@@ -739,16 +797,39 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
         return toModelName(type);
     }
 
+    /**
+     * Provides C# strongly typed declaration for simple arrays of some type and arrays of arrays of some type.
+     * @param arr The input array property
+     * @return The type declaration when the type is an array of arrays.
+     */
+    private String getArrayTypeDeclaration(ArrayProperty arr) {
+        // TODO: collection type here should be fully qualified namespace to avoid model conflicts
+        // This supports arrays of arrays.
+        String arrayType = typeMapping.get("array");
+        StringBuilder instantiationType = new StringBuilder(arrayType);
+        Property items = arr.getItems();
+        String nestedType = getTypeDeclaration(items);
+        // TODO: We may want to differentiate here between generics and primitive arrays.
+        instantiationType.append("<").append(nestedType).append(">");
+        return instantiationType.toString();
+    }
+
+    @Override
+    public String toInstantiationType(Property p) {
+        if (p instanceof ArrayProperty) {
+            return getArrayTypeDeclaration((ArrayProperty) p);
+        }
+        return super.toInstantiationType(p);
+    }
+
     @Override
     public String getTypeDeclaration(Property p) {
         if (p instanceof ArrayProperty) {
-            ArrayProperty ap = (ArrayProperty) p;
-            Property inner = ap.getItems();
-            return getSwaggerType(p) + "<" + getTypeDeclaration(inner) + ">";
+            return getArrayTypeDeclaration((ArrayProperty) p);
         } else if (p instanceof MapProperty) {
+            // Should we also support maps of maps?
             MapProperty mp = (MapProperty) p;
             Property inner = mp.getAdditionalProperties();
-
             return getSwaggerType(p) + "<string, " + getTypeDeclaration(inner) + ">";
         }
         return super.getTypeDeclaration(p);
@@ -815,11 +896,11 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
     public void setPackageVersion(String packageVersion) {
         this.packageVersion = packageVersion;
     }
-    
+
     public void setPackageTitle(String packageTitle) {
         this.packageTitle = packageTitle;
     }
-    
+
     public void setPackageProductName(String packageProductName) {
         this.packageProductName = packageProductName;
     }
@@ -827,11 +908,11 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
     public void setPackageDescription(String packageDescription) {
         this.packageDescription = packageDescription;
     }
-    
+
     public void setPackageCompany(String packageCompany) {
         this.packageCompany = packageCompany;
     }
-    
+
     public void setPackageCopyright(String packageCopyright) {
         this.packageCopyright = packageCopyright;
     }
@@ -839,7 +920,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
     public void setPackageAuthors(String packageAuthors) {
         this.packageAuthors = packageAuthors;
     }
-    
+
     public void setSourceFolder(String sourceFolder) {
         this.sourceFolder = sourceFolder;
     }
@@ -899,6 +980,75 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
         return this.packageName + ".Test";
     }
 
+    public boolean isPreserveNewLines() {
+        return preserveNewLines;
+    }
+
+    public void setPreserveNewLines(boolean preserveNewLines) {
+        this.preserveNewLines = preserveNewLines;
+    }
+
+    @Override
+    public void preprocessSwagger(Swagger swagger) {
+        if (this.preserveNewLines) {
+            if (swagger.getDefinitions() != null) {
+                for (String name : swagger.getDefinitions().keySet()) {
+                    Model model = swagger.getDefinitions().get(name);
+                    if (StringUtils.isNotBlank(model.getDescription())) {
+                        model.setDescription(preserveNewlines(model.getDescription(), 1));
+                    }
+                    if (model instanceof ModelImpl) {
+                        ModelImpl impl = (ModelImpl) model;
+                        if (impl.getProperties() != null) {
+                            for (String propertyName : impl.getProperties().keySet()) {
+                                Property property = impl.getProperties().get(propertyName);
+                                if (StringUtils.isNotBlank(property.getDescription())) {
+                                    property.setDescription(preserveNewlines(property.getDescription(), 2));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for (String pathname : swagger.getPaths().keySet()) {
+                Path path = swagger.getPaths().get(pathname);
+                for (Operation op : path.getOperations()) {
+                    if (StringUtils.isNotBlank(op.getDescription())) {
+                        op.setDescription(preserveNewlines(op.getDescription(), 2));
+                    }
+                    if (StringUtils.isNotBlank(op.getSummary())) {
+                        op.setSummary(preserveNewlines(op.getSummary(), 2));
+                    }
+                    if (op.getParameters() != null) {
+                        for (Parameter param : op.getParameters()) {
+                            if (StringUtils.isNotBlank(param.getDescription())) {
+                                param.setDescription(preserveNewlines(param.getDescription(), 2));
+                            }
+                        }
+                    }
+                    if (op.getResponses() != null) {
+                        for (String responseCode : op.getResponses().keySet()) {
+                            Response response = op.getResponses().get(responseCode);
+
+                            if (StringUtils.isNotBlank(response.getDescription())) {
+                                response.setDescription(preserveNewlines(response.getDescription(), 2));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public String preserveNewlines(String input, int tabstops) {
+        if (tabstops == 1) {
+            return input.replaceAll("\\n", "~~N1");
+        } else {
+            // assume 2 tabstops
+            return input.replaceAll("\\n", "~~N2");
+        }
+    }
+
     @Override
     public String escapeQuotationMark(String input) {
         // remove " to avoid code injection
@@ -907,6 +1057,11 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
 
     @Override
     public String escapeUnsafeCharacters(String input) {
-        return input.replace("*/", "*_/").replace("/*", "/_*").replace("--", "- -");
+        String intermediate = input.replace("*/", "*_/").replace("/*", "/_*").replace("--", "- -");
+
+        intermediate = intermediate.replaceAll("~~N1", "\n    /// ");
+        intermediate = intermediate.replaceAll("~~N2", "\n        /// ");
+
+        return intermediate;
     }
 }

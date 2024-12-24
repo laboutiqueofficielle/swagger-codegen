@@ -4,10 +4,21 @@ import com.google.common.collect.ImmutableMap;
 import com.samskivert.mustache.Mustache;
 import io.swagger.codegen.*;
 import io.swagger.models.Model;
+import io.swagger.models.ModelImpl;
+import io.swagger.models.RefModel;
+import io.swagger.models.Swagger;
+import io.swagger.models.properties.ArrayProperty;
+import io.swagger.models.properties.Property;
+import io.swagger.models.properties.PropertyBuilder;
+import io.swagger.models.properties.RefProperty;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -27,6 +38,8 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
     // Defines the sdk option for targeted frameworks, which differs from targetFramework and targetFrameworkNuget
     private static final String MCS_NET_VERSION_KEY = "x-mcs-sdk";
 
+    protected Swagger swagger;
+
     protected String packageGuid = "{" + java.util.UUID.randomUUID().toString().toUpperCase() + "}";
     protected String clientPackage = "IO.Swagger.Client";
     protected String localVariablePrefix = "";
@@ -42,7 +55,6 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
     protected boolean supportsUWP = Boolean.FALSE;
     protected boolean netStandard = Boolean.FALSE;
     protected boolean generatePropertyChanged = Boolean.FALSE;
-    protected boolean hideGenerationTimestamp = Boolean.TRUE;
 
     protected boolean validatable = Boolean.TRUE;
     protected Map<Character, String> regexModifiers;
@@ -59,6 +71,8 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
 
         modelDocTemplateFiles.put("model_doc.mustache", ".md");
         apiDocTemplateFiles.put("api_doc.mustache", ".md");
+
+        hideGenerationTimestamp = Boolean.TRUE;
 
         cliOptions.clear();
 
@@ -186,12 +200,6 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
             setModelPropertyNaming((String) additionalProperties.get(CodegenConstants.MODEL_PROPERTY_NAMING));
         }
 
-        // default HIDE_GENERATION_TIMESTAMP to true
-        if (additionalProperties.containsKey(CodegenConstants.HIDE_GENERATION_TIMESTAMP)) {
-            setHideGenerationTimestamp(convertPropertyToBooleanAndWriteBack(CodegenConstants.HIDE_GENERATION_TIMESTAMP));
-        } else {
-            additionalProperties.put(CodegenConstants.HIDE_GENERATION_TIMESTAMP, hideGenerationTimestamp);
-        }
 
         if (isEmpty(apiPackage)) {
             setApiPackage("Api");
@@ -313,9 +321,8 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
 
         if (additionalProperties.containsKey(CodegenConstants.OPTIONAL_METHOD_ARGUMENT)) {
             setOptionalMethodArgumentFlag(convertPropertyToBooleanAndWriteBack(CodegenConstants.OPTIONAL_METHOD_ARGUMENT));
-        } else {
-            additionalProperties.put(CodegenConstants.OPTIONAL_METHOD_ARGUMENT, optionalMethodArgumentFlag);
         }
+        additionalProperties.put(CodegenConstants.OPTIONAL_METHOD_ARGUMENT, optionalMethodArgumentFlag);
 
         if (additionalProperties.containsKey(CodegenConstants.OPTIONAL_ASSEMBLY_INFO)) {
             setOptionalAssemblyInfoFlag(convertPropertyToBooleanAndWriteBack(CodegenConstants.OPTIONAL_ASSEMBLY_INFO));
@@ -325,9 +332,8 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
 
         if (additionalProperties.containsKey(CodegenConstants.NON_PUBLIC_API)) {
             setNonPublicApi(convertPropertyToBooleanAndWriteBack(CodegenConstants.NON_PUBLIC_API));
-        } else {
-            additionalProperties.put(CodegenConstants.NON_PUBLIC_API, isNonPublicApi());
         }
+        additionalProperties.put(CodegenConstants.NON_PUBLIC_API, isNonPublicApi());
 
         final String testPackageName = testPackageName();
         String packageFolder = sourceFolder + File.separator + packageName;
@@ -438,6 +444,10 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
 
         additionalProperties.put("apiDocPath", apiDocPath);
         additionalProperties.put("modelDocPath", modelDocPath);
+
+        if (skipAliasGeneration == null) {
+            skipAliasGeneration = true;
+        }
     }
 
     public void setModelPropertyNaming(String naming) {
@@ -480,6 +490,26 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
         }
 
         return objs;
+    }
+
+    @Override
+    public String getSwaggerType(Property p) {
+        String swaggerType = super.getSwaggerType(p);
+        if (p instanceof RefProperty && this.swagger != null) {
+            final Map<String, Model> allDefinitions = this.swagger.getDefinitions();
+            final Model referencedModel = allDefinitions.get(swaggerType);
+            if (referencedModel == null) {
+                return swaggerType;
+            }
+            if (referencedModel instanceof ModelImpl) {
+                final ModelImpl model = (ModelImpl) referencedModel;
+                if (!this.isModelObject(model) && (model.getEnum() == null || model.getEnum().isEmpty())) {
+                    final Property property = PropertyBuilder.build(model.getType(), model.getFormat(), null);
+                    swaggerType = getSwaggerType(property);
+                }
+            }
+        }
+        return swaggerType;
     }
 
     @Override
@@ -556,6 +586,28 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
 
         return codegenModel;
     }
+
+    @Override
+    protected void readRefModelParameter(RefModel refModel, CodegenParameter codegenParameter, Set<String> imports) {
+        String name = getSwaggerType(new RefProperty(refModel.get$ref()));
+
+        try {
+            name = URLDecoder.decode(name, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("Could not decoded string: " + name, e);
+        }
+        name = getAlias(name);
+        if (typeMapping.containsKey(name)) {
+            name = typeMapping.get(name);
+        } else {
+            if (defaultIncludes.contains(name)) {
+                imports.add(name);
+            }
+        }
+        codegenParameter.baseType = name;
+        codegenParameter.dataType = name;
+    }
+
 
     public void setOptionalProjectFileFlag(boolean flag) {
         this.optionalProjectFileFlag = flag;
@@ -766,10 +818,6 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
         this.generatePropertyChanged = generatePropertyChanged;
     }
 
-    public void setHideGenerationTimestamp(boolean hideGenerationTimestamp) {
-        this.hideGenerationTimestamp = hideGenerationTimestamp;
-    }
-
     public boolean isNonPublicApi() {
         return nonPublicApi;
     }
@@ -811,5 +859,10 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
     public Mustache.Compiler processCompiler(Mustache.Compiler compiler) {
         // To avoid unexpected behaviors when options are passed programmatically such as { "supportsAsync": "" }
         return super.processCompiler(compiler).emptyStringIsFalse(true);
+    }
+
+    @Override
+    public void preprocessSwagger(Swagger swagger) {
+        this.swagger = swagger;
     }
 }

@@ -40,7 +40,7 @@ export interface FetchAPI {
 }
 
 /**
- *  
+ *
  * @export
  * @interface FetchArgs
  */
@@ -50,12 +50,12 @@ export interface FetchArgs {
 }
 
 /**
- * 
+ *
  * @export
  * @class BaseAPI
  */
 export class BaseAPI {
-    protected configuration: Configuration;
+    protected configuration?: Configuration;
 
     constructor(configuration?: Configuration, protected basePath: string = BASE_PATH, protected fetch: FetchAPI = portableFetch) {
         if (configuration) {
@@ -66,16 +66,36 @@ export class BaseAPI {
 };
 
 /**
- * 
+ *
  * @export
  * @class RequiredError
  * @extends {Error}
  */
 export class RequiredError extends Error {
-    name: "RequiredError"
+    name = "RequiredError"
     constructor(public field: string, msg?: string) {
         super(msg);
     }
+}
+
+/**
+ * some description 
+ * @export
+ * @interface Amount
+ */
+export interface Amount {
+    /**
+     * some description 
+     * @type {number}
+     * @memberof Amount
+     */
+    value: number;
+    /**
+     * 
+     * @type {Currency}
+     * @memberof Amount
+     */
+    currency: Currency;
 }
 
 /**
@@ -122,6 +142,14 @@ export interface Category {
      * @memberof Category
      */
     name?: string;
+}
+
+/**
+ * some description 
+ * @export
+ * @interface Currency
+ */
+export interface Currency {
 }
 
 /**
@@ -210,13 +238,13 @@ export interface Pet {
     name: string;
     /**
      * 
-     * @type {Array&lt;string&gt;}
+     * @type {Array<string>}
      * @memberof Pet
      */
     photoUrls: Array<string>;
     /**
      * 
-     * @type {Array&lt;Tag&gt;}
+     * @type {Array<Tag>}
      * @memberof Pet
      */
     tags?: Array<Tag>;
@@ -358,7 +386,7 @@ export const PetApiFetchParamCreator = function (configuration?: Configuration) 
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"Pet" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
@@ -403,7 +431,7 @@ export const PetApiFetchParamCreator = function (configuration?: Configuration) 
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
             return {
@@ -414,11 +442,11 @@ export const PetApiFetchParamCreator = function (configuration?: Configuration) 
         /**
          * Multiple status values can be provided with comma separated strings
          * @summary Finds Pets by status
-         * @param {Array&lt;string&gt;} status Status values that need to be considered for filter
+         * @param {Array<'available' | 'pending' | 'sold'>} status Status values that need to be considered for filter
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        findPetsByStatus(status: Array<string>, options: any = {}): FetchArgs {
+        findPetsByStatus(status: Array<'available' | 'pending' | 'sold'>, options: any = {}): FetchArgs {
             // verify required parameter 'status' is not null or undefined
             if (status === null || status === undefined) {
                 throw new RequiredError('status','Required parameter status was null or undefined when calling findPetsByStatus.');
@@ -444,7 +472,7 @@ export const PetApiFetchParamCreator = function (configuration?: Configuration) 
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
             return {
@@ -455,7 +483,7 @@ export const PetApiFetchParamCreator = function (configuration?: Configuration) 
         /**
          * Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
          * @summary Finds Pets by tags
-         * @param {Array&lt;string&gt;} tags Tags to filter by
+         * @param {Array<string>} tags Tags to filter by
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -485,7 +513,7 @@ export const PetApiFetchParamCreator = function (configuration?: Configuration) 
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
             return {
@@ -522,7 +550,7 @@ export const PetApiFetchParamCreator = function (configuration?: Configuration) 
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
             return {
@@ -561,7 +589,7 @@ export const PetApiFetchParamCreator = function (configuration?: Configuration) 
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"Pet" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
@@ -614,7 +642,7 @@ export const PetApiFetchParamCreator = function (configuration?: Configuration) 
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             localVarRequestOptions.body = localVarFormParams.toString();
 
@@ -666,7 +694,7 @@ export const PetApiFetchParamCreator = function (configuration?: Configuration) 
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             localVarRequestOptions.body = localVarFormParams.toString();
 
@@ -726,11 +754,11 @@ export const PetApiFp = function(configuration?: Configuration) {
         /**
          * Multiple status values can be provided with comma separated strings
          * @summary Finds Pets by status
-         * @param {Array&lt;string&gt;} status Status values that need to be considered for filter
+         * @param {Array<'available' | 'pending' | 'sold'>} status Status values that need to be considered for filter
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        findPetsByStatus(status: Array<string>, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Pet>> {
+        findPetsByStatus(status: Array<'available' | 'pending' | 'sold'>, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Pet>> {
             const localVarFetchArgs = PetApiFetchParamCreator(configuration).findPetsByStatus(status, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -745,7 +773,7 @@ export const PetApiFp = function(configuration?: Configuration) {
         /**
          * Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
          * @summary Finds Pets by tags
-         * @param {Array&lt;string&gt;} tags Tags to filter by
+         * @param {Array<string>} tags Tags to filter by
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -874,17 +902,17 @@ export const PetApiFactory = function (configuration?: Configuration, fetch?: Fe
         /**
          * Multiple status values can be provided with comma separated strings
          * @summary Finds Pets by status
-         * @param {Array&lt;string&gt;} status Status values that need to be considered for filter
+         * @param {Array<'available' | 'pending' | 'sold'>} status Status values that need to be considered for filter
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        findPetsByStatus(status: Array<string>, options?: any) {
+        findPetsByStatus(status: Array<'available' | 'pending' | 'sold'>, options?: any) {
             return PetApiFp(configuration).findPetsByStatus(status, options)(fetch, basePath);
         },
         /**
          * Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
          * @summary Finds Pets by tags
-         * @param {Array&lt;string&gt;} tags Tags to filter by
+         * @param {Array<string>} tags Tags to filter by
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -948,7 +976,7 @@ export class PetApi extends BaseAPI {
     /**
      * 
      * @summary Add a new pet to the store
-     * @param {} body Pet object that needs to be added to the store
+     * @param {Pet} body Pet object that needs to be added to the store
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PetApi
@@ -960,8 +988,8 @@ export class PetApi extends BaseAPI {
     /**
      * 
      * @summary Deletes a pet
-     * @param {} petId Pet id to delete
-     * @param {} [apiKey] 
+     * @param {number} petId Pet id to delete
+     * @param {string} [apiKey] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PetApi
@@ -973,19 +1001,19 @@ export class PetApi extends BaseAPI {
     /**
      * Multiple status values can be provided with comma separated strings
      * @summary Finds Pets by status
-     * @param {} status Status values that need to be considered for filter
+     * @param {Array<'available' | 'pending' | 'sold'>} status Status values that need to be considered for filter
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PetApi
      */
-    public findPetsByStatus(status: Array<string>, options?: any) {
+    public findPetsByStatus(status: Array<'available' | 'pending' | 'sold'>, options?: any) {
         return PetApiFp(this.configuration).findPetsByStatus(status, options)(this.fetch, this.basePath);
     }
 
     /**
      * Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
      * @summary Finds Pets by tags
-     * @param {} tags Tags to filter by
+     * @param {Array<string>} tags Tags to filter by
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PetApi
@@ -997,7 +1025,7 @@ export class PetApi extends BaseAPI {
     /**
      * Returns a single pet
      * @summary Find pet by ID
-     * @param {} petId ID of pet to return
+     * @param {number} petId ID of pet to return
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PetApi
@@ -1009,7 +1037,7 @@ export class PetApi extends BaseAPI {
     /**
      * 
      * @summary Update an existing pet
-     * @param {} body Pet object that needs to be added to the store
+     * @param {Pet} body Pet object that needs to be added to the store
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PetApi
@@ -1021,9 +1049,9 @@ export class PetApi extends BaseAPI {
     /**
      * 
      * @summary Updates a pet in the store with form data
-     * @param {} petId ID of pet that needs to be updated
-     * @param {} [name] Updated name of the pet
-     * @param {} [status] Updated status of the pet
+     * @param {number} petId ID of pet that needs to be updated
+     * @param {string} [name] Updated name of the pet
+     * @param {string} [status] Updated status of the pet
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PetApi
@@ -1035,9 +1063,9 @@ export class PetApi extends BaseAPI {
     /**
      * 
      * @summary uploads an image
-     * @param {} petId ID of pet to update
-     * @param {} [additionalMetadata] Additional data to pass to server
-     * @param {} [file] file to upload
+     * @param {number} petId ID of pet to update
+     * @param {string} [additionalMetadata] Additional data to pass to server
+     * @param {any} [file] file to upload
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PetApi
@@ -1075,7 +1103,7 @@ export const StoreApiFetchParamCreator = function (configuration?: Configuration
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
             return {
@@ -1106,7 +1134,7 @@ export const StoreApiFetchParamCreator = function (configuration?: Configuration
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
             return {
@@ -1135,7 +1163,7 @@ export const StoreApiFetchParamCreator = function (configuration?: Configuration
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
             return {
@@ -1165,7 +1193,7 @@ export const StoreApiFetchParamCreator = function (configuration?: Configuration
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"Order" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
@@ -1320,7 +1348,7 @@ export class StoreApi extends BaseAPI {
     /**
      * For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
      * @summary Delete purchase order by ID
-     * @param {} orderId ID of the order that needs to be deleted
+     * @param {string} orderId ID of the order that needs to be deleted
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StoreApi
@@ -1343,7 +1371,7 @@ export class StoreApi extends BaseAPI {
     /**
      * For valid response try integer IDs with value <= 5 or > 10. Other values will generated exceptions
      * @summary Find purchase order by ID
-     * @param {} orderId ID of pet that needs to be fetched
+     * @param {number} orderId ID of pet that needs to be fetched
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StoreApi
@@ -1355,7 +1383,7 @@ export class StoreApi extends BaseAPI {
     /**
      * 
      * @summary Place an order for a pet
-     * @param {} body order placed for purchasing the pet
+     * @param {Order} body order placed for purchasing the pet
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StoreApi
@@ -1394,7 +1422,7 @@ export const UserApiFetchParamCreator = function (configuration?: Configuration)
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"User" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
@@ -1407,7 +1435,7 @@ export const UserApiFetchParamCreator = function (configuration?: Configuration)
         /**
          * 
          * @summary Creates list of users with given input array
-         * @param {Array&lt;User&gt;} body List of user object
+         * @param {Array<User>} body List of user object
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1426,7 +1454,7 @@ export const UserApiFetchParamCreator = function (configuration?: Configuration)
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"Array&lt;User&gt;" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
@@ -1439,7 +1467,7 @@ export const UserApiFetchParamCreator = function (configuration?: Configuration)
         /**
          * 
          * @summary Creates list of users with given input array
-         * @param {Array&lt;User&gt;} body List of user object
+         * @param {Array<User>} body List of user object
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1458,7 +1486,7 @@ export const UserApiFetchParamCreator = function (configuration?: Configuration)
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"Array&lt;User&gt;" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
@@ -1489,7 +1517,7 @@ export const UserApiFetchParamCreator = function (configuration?: Configuration)
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
             return {
@@ -1500,7 +1528,7 @@ export const UserApiFetchParamCreator = function (configuration?: Configuration)
         /**
          * 
          * @summary Get user by user name
-         * @param {string} username The name that needs to be fetched. Use user1 for testing. 
+         * @param {string} username The name that needs to be fetched. Use user1 for testing.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1518,7 +1546,7 @@ export const UserApiFetchParamCreator = function (configuration?: Configuration)
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
             return {
@@ -1559,7 +1587,7 @@ export const UserApiFetchParamCreator = function (configuration?: Configuration)
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
             return {
@@ -1582,7 +1610,7 @@ export const UserApiFetchParamCreator = function (configuration?: Configuration)
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
             return {
@@ -1618,7 +1646,7 @@ export const UserApiFetchParamCreator = function (configuration?: Configuration)
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
+            localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"User" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
@@ -1659,7 +1687,7 @@ export const UserApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Creates list of users with given input array
-         * @param {Array&lt;User&gt;} body List of user object
+         * @param {Array<User>} body List of user object
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1678,7 +1706,7 @@ export const UserApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Creates list of users with given input array
-         * @param {Array&lt;User&gt;} body List of user object
+         * @param {Array<User>} body List of user object
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1716,7 +1744,7 @@ export const UserApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Get user by user name
-         * @param {string} username The name that needs to be fetched. Use user1 for testing. 
+         * @param {string} username The name that needs to be fetched. Use user1 for testing.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1812,7 +1840,7 @@ export const UserApiFactory = function (configuration?: Configuration, fetch?: F
         /**
          * 
          * @summary Creates list of users with given input array
-         * @param {Array&lt;User&gt;} body List of user object
+         * @param {Array<User>} body List of user object
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1822,7 +1850,7 @@ export const UserApiFactory = function (configuration?: Configuration, fetch?: F
         /**
          * 
          * @summary Creates list of users with given input array
-         * @param {Array&lt;User&gt;} body List of user object
+         * @param {Array<User>} body List of user object
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1842,7 +1870,7 @@ export const UserApiFactory = function (configuration?: Configuration, fetch?: F
         /**
          * 
          * @summary Get user by user name
-         * @param {string} username The name that needs to be fetched. Use user1 for testing. 
+         * @param {string} username The name that needs to be fetched. Use user1 for testing.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1893,7 +1921,7 @@ export class UserApi extends BaseAPI {
     /**
      * This can only be done by the logged in user.
      * @summary Create user
-     * @param {} body Created user object
+     * @param {User} body Created user object
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserApi
@@ -1905,7 +1933,7 @@ export class UserApi extends BaseAPI {
     /**
      * 
      * @summary Creates list of users with given input array
-     * @param {} body List of user object
+     * @param {Array<User>} body List of user object
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserApi
@@ -1917,7 +1945,7 @@ export class UserApi extends BaseAPI {
     /**
      * 
      * @summary Creates list of users with given input array
-     * @param {} body List of user object
+     * @param {Array<User>} body List of user object
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserApi
@@ -1929,7 +1957,7 @@ export class UserApi extends BaseAPI {
     /**
      * This can only be done by the logged in user.
      * @summary Delete user
-     * @param {} username The name that needs to be deleted
+     * @param {string} username The name that needs to be deleted
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserApi
@@ -1941,7 +1969,7 @@ export class UserApi extends BaseAPI {
     /**
      * 
      * @summary Get user by user name
-     * @param {} username The name that needs to be fetched. Use user1 for testing. 
+     * @param {string} username The name that needs to be fetched. Use user1 for testing.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserApi
@@ -1953,8 +1981,8 @@ export class UserApi extends BaseAPI {
     /**
      * 
      * @summary Logs user into the system
-     * @param {} username The user name for login
-     * @param {} password The password for login in clear text
+     * @param {string} username The user name for login
+     * @param {string} password The password for login in clear text
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserApi
@@ -1977,8 +2005,8 @@ export class UserApi extends BaseAPI {
     /**
      * This can only be done by the logged in user.
      * @summary Updated user
-     * @param {} username name that need to be deleted
-     * @param {} body Updated user object
+     * @param {string} username name that need to be deleted
+     * @param {User} body Updated user object
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserApi

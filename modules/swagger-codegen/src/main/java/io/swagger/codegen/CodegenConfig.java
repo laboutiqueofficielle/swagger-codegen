@@ -163,6 +163,8 @@ public interface CodegenConfig {
 
     String apiFilename(String templateName, String tag);
 
+    String modelFilename(String templateName, String modelName);
+
     String apiTestFilename(String templateName, String tag);
 
     String apiDocFilename(String templateName, String tag);
@@ -176,6 +178,10 @@ public interface CodegenConfig {
     boolean isRemoveOperationIdPrefix();
 
     void setRemoveOperationIdPrefix(boolean removeOperationIdPrefix);
+
+    public boolean isHideGenerationTimestamp();
+
+    public void setHideGenerationTimestamp(boolean hideGenerationTimestamp);
 
     Map<String, String> supportedLibraries();
 
@@ -195,6 +201,10 @@ public interface CodegenConfig {
     void setGitRepoId(String gitRepoId);
 
     String getGitRepoId();
+
+    void setGitRepoBaseURL(String repositoryBaseURL);
+
+    String getGitRepoBaseURL();
 
     void setReleaseNote(String releaseNote);
 
@@ -216,4 +226,29 @@ public interface CodegenConfig {
 
     String toGetter(String name);
 
+    String sanitizeName(String name);
+
+    void setSkipAliasGeneration(Boolean skipAliasGeneration);
+
+    Boolean getSkipAliasGeneration();
+
+    boolean getIgnoreImportMapping();
+
+    void setIgnoreImportMapping(boolean ignoreImportMapping);
+
+    boolean defaultIgnoreImportMappingOption();
+
+    boolean isUsingFlattenSpec();
+
+    default boolean isPrivileged() {
+        return false;
+    }
+
+    default int getPriority() {
+        return Integer.MIN_VALUE;
+    }
+
+    default String getCodeName() {
+        return getName();
+    }
 }

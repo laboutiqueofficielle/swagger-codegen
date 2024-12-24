@@ -29,7 +29,7 @@ import { Configuration }                                     from '../configurat
 @Injectable()
 export class StoreService {
 
-    protected basePath = 'http://petstore.swagger.io/v2';
+    protected basePath = 'https://petstore.swagger.io/v2';
     public defaultHeaders = new Headers();
     public configuration = new Configuration();
 
@@ -49,7 +49,7 @@ export class StoreService {
      */
     private canConsumeForm(consumes: string[]): boolean {
         const form = 'multipart/form-data';
-        for (let consume of consumes) {
+        for (const consume of consumes) {
             if (form === consume) {
                 return true;
             }
@@ -128,6 +128,7 @@ export class StoreService {
      
      */
     public deleteOrderWithHttpInfo(orderId: string, extraHttpRequestParams?: RequestOptionsArgs): Observable<Response> {
+
         if (orderId === null || orderId === undefined) {
             throw new Error('Required parameter orderId was null or undefined when calling deleteOrder.');
         }
@@ -139,13 +140,13 @@ export class StoreService {
             'application/xml',
             'application/json'
         ];
-        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         if (httpHeaderAcceptSelected != undefined) {
-            headers.set("Accept", httpHeaderAcceptSelected);
+            headers.set('Accept', httpHeaderAcceptSelected);
         }
 
         // to determine the Content-Type header
-        let consumes: string[] = [
+        const consumes: string[] = [
         ];
 
         let requestOptions: RequestOptionsArgs = new RequestOptions({
@@ -171,7 +172,7 @@ export class StoreService {
         let headers = new Headers(this.defaultHeaders.toJSON()); // https://github.com/angular/angular/issues/6845
 
         // authentication (api_key) required
-        if (this.configuration.apiKeys["api_key"]) {
+        if (this.configuration.apiKeys && this.configuration.apiKeys["api_key"]) {
             headers.set('api_key', this.configuration.apiKeys["api_key"]);
         }
 
@@ -179,13 +180,13 @@ export class StoreService {
         let httpHeaderAccepts: string[] = [
             'application/json'
         ];
-        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         if (httpHeaderAcceptSelected != undefined) {
-            headers.set("Accept", httpHeaderAcceptSelected);
+            headers.set('Accept', httpHeaderAcceptSelected);
         }
 
         // to determine the Content-Type header
-        let consumes: string[] = [
+        const consumes: string[] = [
         ];
 
         let requestOptions: RequestOptionsArgs = new RequestOptions({
@@ -208,6 +209,7 @@ export class StoreService {
      
      */
     public getOrderByIdWithHttpInfo(orderId: number, extraHttpRequestParams?: RequestOptionsArgs): Observable<Response> {
+
         if (orderId === null || orderId === undefined) {
             throw new Error('Required parameter orderId was null or undefined when calling getOrderById.');
         }
@@ -219,13 +221,13 @@ export class StoreService {
             'application/xml',
             'application/json'
         ];
-        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         if (httpHeaderAcceptSelected != undefined) {
-            headers.set("Accept", httpHeaderAcceptSelected);
+            headers.set('Accept', httpHeaderAcceptSelected);
         }
 
         // to determine the Content-Type header
-        let consumes: string[] = [
+        const consumes: string[] = [
         ];
 
         let requestOptions: RequestOptionsArgs = new RequestOptions({
@@ -248,6 +250,7 @@ export class StoreService {
      
      */
     public placeOrderWithHttpInfo(body: Order, extraHttpRequestParams?: RequestOptionsArgs): Observable<Response> {
+
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling placeOrder.');
         }
@@ -259,15 +262,15 @@ export class StoreService {
             'application/xml',
             'application/json'
         ];
-        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         if (httpHeaderAcceptSelected != undefined) {
-            headers.set("Accept", httpHeaderAcceptSelected);
+            headers.set('Accept', httpHeaderAcceptSelected);
         }
 
         // to determine the Content-Type header
-        let consumes: string[] = [
+        const consumes: string[] = [
         ];
-        let httpContentTypeSelected:string | undefined = this.configuration.selectHeaderContentType(consumes);
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
         if (httpContentTypeSelected != undefined) {
             headers.set('Content-Type', httpContentTypeSelected);
         }
