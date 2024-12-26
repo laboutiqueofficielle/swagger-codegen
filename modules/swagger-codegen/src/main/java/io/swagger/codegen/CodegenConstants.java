@@ -178,6 +178,9 @@ public class CodegenConstants {
     public static final String GIT_REPO_ID = "gitRepoId";
     public static final String GIT_REPO_ID_DESC = "Git repo ID, e.g. swagger-codegen.";
 
+    public static final String GIT_REPO_BASE_URL = "gitRepoBaseURL";
+    public static final String GIT_REPO_BASE_URL_DESC = "Git repo base URL, e.g. https://github.com.";
+
     public static final String RELEASE_NOTE = "releaseNote";
     public static final String RELEASE_NOTE_DESC = "Release note, default to 'Minor update'.";
 
@@ -194,12 +197,15 @@ public class CodegenConstants {
     public static final String EXCLUDE_TESTS_DESC = "Specifies that no tests are to be generated.";
 
     // Not user-configurable. System provided for use in templates.
+
+    public static final String GENERATE_APIS = "generateApis";
     public static final String GENERATE_API_DOCS = "generateApiDocs";
 
     public static final String GENERATE_API_TESTS = "generateApiTests";
     public static final String GENERATE_API_TESTS_DESC = "Specifies that api tests are to be generated.";
 
     // Not user-configurable. System provided for use in templates.
+    public static final String GENERATE_MODELS = "generateModels";
     public static final String GENERATE_MODEL_DOCS = "generateModelDocs";
 
     public static final String GENERATE_MODEL_TESTS = "generateModelTests";
@@ -210,6 +216,8 @@ public class CodegenConstants {
 
     public static final String GENERATE_PROPERTY_CHANGED = "generatePropertyChanged";
     public static final String GENERATE_PROPERTY_CHANGED_DESC = "Specifies that models support raising property changed events.";
+
+    public static final String PRESERVE_COMMENT_NEWLINES = "preserveNewlinesInComments";
 
     public static final String NON_PUBLIC_API = "nonPublicApi";
     public static final String NON_PUBLIC_API_DESC = "Generates code with reduced access modifiers; allows embedding elsewhere without exposing non-public API calls to consumers.";
@@ -222,4 +230,13 @@ public class CodegenConstants {
 
     public static final String REMOVE_OPERATION_ID_PREFIX = "removeOperationIdPrefix";
     public static final String REMOVE_OPERATION_ID_PREFIX_DESC = "Remove prefix of operationId, e.g. config_getId => getId";
+
+    public static final String STRIP_PACKAGE_NAME = "stripPackageName";
+    public static final String STRIP_PACKAGE_NAME_DESC = "Whether to strip leading dot-separated packages from generated model classes";
+
+    public static final String ASP_NET_CORE_VERSION = "aspnetCoreVersion";
+    public static final String INTERFACE_ONLY = "interface-only";
+    public static final String INTERFACE_CONTROLLER = "interface-controller";
+
+    public static final String IGNORE_IMPORT_MAPPING_OPTION = "ignoreImportMappings";
 }

@@ -2,7 +2,7 @@
 {{> api_info}}
 =end
 
-require 'uri'
+require 'addressable/uri'
 
 module {{moduleName}}
   class Configuration
@@ -162,12 +162,12 @@ module {{moduleName}}
     def base_path=(base_path)
       # Add leading and trailing slashes to base_path
       @base_path = "/#{base_path}".gsub(/\/+/, '/')
-      @base_path = "" if @base_path == "/"
+      @base_path = '' if @base_path == '/'
     end
 
     def base_url
       url = "#{scheme}://#{[host, base_path].join('/').gsub(/\/+/, '/')}".sub(/\/+\z/, '')
-      URI.encode(url)
+      Addressable::URI.encode(url)
     end
 
     # Gets API key (with prefix if set).

@@ -74,7 +74,7 @@ public class StaticHtmlGenerator extends DefaultCodegen implements CodegenConfig
     
     /**
      * Convert Markdown (CommonMark) to HTML. This class also disables normal HTML
-     * escaping in the Mustache engine (see {@link #processCompiler(Compiler)} above.)
+     * escaping in the Mustache engine (see {@link DefaultCodegen#processCompiler(Compiler)} above.)
      */
    @Override
     public String escapeText(String input) {
@@ -182,7 +182,7 @@ public class StaticHtmlGenerator extends DefaultCodegen implements CodegenConfig
         Info info = swagger.getInfo();
         info.setDescription(toHtml(info.getDescription()));
         info.setTitle(toHtml(info.getTitle()));
-        Map<String, Model> models = swagger.getDefinitions();
+        Map<String, Model> models = swagger.getDefinitions() != null ? swagger.getDefinitions() : new HashMap<String, Model>();
         for (Model model : models.values()) {
             model.setDescription(toHtml(model.getDescription()));
             model.setTitle(toHtml(model.getTitle()));
