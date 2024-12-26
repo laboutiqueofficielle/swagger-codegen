@@ -181,11 +181,11 @@ font-style: italic;
   <body>
   <h1>Swagger Petstore</h1>
     <div class="app-desc">This is a sample server Petstore server.  You can find out more about Swagger at <a href="http://swagger.io">http://swagger.io</a> or on <a href="http://swagger.io/irc/">irc.freenode.net, #swagger</a>.  For this sample, you can use the api key <code>special-key</code> to test the authorization filters.</div>
-    <div class="app-desc">More information: <a href=""></a></div>
+    <div class="app-desc">More information: <a href="https://helloreverb.com">https://helloreverb.com</a></div>
     <div class="app-desc">Contact Info: <a href="apiteam@swagger.io">apiteam@swagger.io</a></div>
     <div class="app-desc">Version: 1.0.0</div>
     <div class="app-desc">BasePath:/v2</div>
-    <div class="license-info">Apache 2.0</div>
+    <div class="license-info">Apache-2.0</div>
     <div class="license-url">http://www.apache.org/licenses/LICENSE-2.0.html</div>
   <h2>Access</h2>
     <ol>
@@ -238,7 +238,7 @@ font-style: italic;
 
 
     <h3 class="field-label">Consumes</h3>
-    This API call consumes the following media types via the <span class="heaader">Content-Type</span> request header:
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
     <ul>
       <li><code>application/json</code></li>
       <li><code>application/xml</code></li>
@@ -261,7 +261,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -291,7 +291,9 @@ font-style: italic;
 
     <h3 class="field-label">Request headers</h3>
     <div class="field-items">
-      
+      <div class="param">api_key (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  </div>
     </div>  <!-- field-items -->
 
 
@@ -302,7 +304,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -356,15 +358,34 @@ font-style: italic;
     <h3 class="field-label">Example data</h3>
     <div class="example-data-content-type">Content-Type: application/json</div>
     <pre class="example"><code>[ {
-  "photoUrls" : [ "aeiou" ],
+  "photoUrls" : [ "photoUrls", "photoUrls" ],
   "name" : "doggie",
   "id" : 0,
   "category" : {
-    "name" : "aeiou",
+    "name" : "name",
     "id" : 6
   },
   "tags" : [ {
-    "name" : "aeiou",
+    "name" : "name",
+    "id" : 1
+  }, {
+    "name" : "name",
+    "id" : 1
+  } ],
+  "status" : "available"
+}, {
+  "photoUrls" : [ "photoUrls", "photoUrls" ],
+  "name" : "doggie",
+  "id" : 0,
+  "category" : {
+    "name" : "name",
+    "id" : 6
+  },
+  "tags" : [ {
+    "name" : "name",
+    "id" : 1
+  }, {
+    "name" : "name",
     "id" : 1
   } ],
   "status" : "available"
@@ -372,7 +393,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -429,15 +450,34 @@ font-style: italic;
     <h3 class="field-label">Example data</h3>
     <div class="example-data-content-type">Content-Type: application/json</div>
     <pre class="example"><code>[ {
-  "photoUrls" : [ "aeiou" ],
+  "photoUrls" : [ "photoUrls", "photoUrls" ],
   "name" : "doggie",
   "id" : 0,
   "category" : {
-    "name" : "aeiou",
+    "name" : "name",
     "id" : 6
   },
   "tags" : [ {
-    "name" : "aeiou",
+    "name" : "name",
+    "id" : 1
+  }, {
+    "name" : "name",
+    "id" : 1
+  } ],
+  "status" : "available"
+}, {
+  "photoUrls" : [ "photoUrls", "photoUrls" ],
+  "name" : "doggie",
+  "id" : 0,
+  "category" : {
+    "name" : "name",
+    "id" : 6
+  },
+  "tags" : [ {
+    "name" : "name",
+    "id" : 1
+  }, {
+    "name" : "name",
     "id" : 1
   } ],
   "status" : "available"
@@ -445,7 +485,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -502,15 +542,18 @@ font-style: italic;
     <h3 class="field-label">Example data</h3>
     <div class="example-data-content-type">Content-Type: application/json</div>
     <pre class="example"><code>{
-  "photoUrls" : [ "aeiou" ],
+  "photoUrls" : [ "photoUrls", "photoUrls" ],
   "name" : "doggie",
   "id" : 0,
   "category" : {
-    "name" : "aeiou",
+    "name" : "name",
     "id" : 6
   },
   "tags" : [ {
-    "name" : "aeiou",
+    "name" : "name",
+    "id" : 1
+  }, {
+    "name" : "name",
     "id" : 1
   } ],
   "status" : "available"
@@ -518,7 +561,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -545,7 +588,7 @@ font-style: italic;
 
 
     <h3 class="field-label">Consumes</h3>
-    This API call consumes the following media types via the <span class="heaader">Content-Type</span> request header:
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
     <ul>
       <li><code>application/json</code></li>
       <li><code>application/xml</code></li>
@@ -568,7 +611,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -601,7 +644,7 @@ font-style: italic;
     </div>  <!-- field-items -->
 
     <h3 class="field-label">Consumes</h3>
-    This API call consumes the following media types via the <span class="heaader">Content-Type</span> request header:
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
     <ul>
       <li><code>application/x-www-form-urlencoded</code></li>
     </ul>
@@ -624,7 +667,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -651,7 +694,7 @@ font-style: italic;
     </div>  <!-- field-items -->
 
     <h3 class="field-label">Consumes</h3>
-    This API call consumes the following media types via the <span class="heaader">Content-Type</span> request header:
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
     <ul>
       <li><code>multipart/form-data</code></li>
     </ul>
@@ -680,13 +723,13 @@ font-style: italic;
     <div class="example-data-content-type">Content-Type: application/json</div>
     <pre class="example"><code>{
   "code" : 0,
-  "type" : "aeiou",
-  "message" : "aeiou"
+  "type" : "type",
+  "message" : "message"
 }</code></pre>
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/json</code></li>
     </ul>
@@ -723,7 +766,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -767,7 +810,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/json</code></li>
     </ul>
@@ -828,7 +871,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -897,7 +940,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -939,7 +982,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -977,7 +1020,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -1015,7 +1058,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -1052,7 +1095,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -1109,19 +1152,19 @@ font-style: italic;
     <h3 class="field-label">Example data</h3>
     <div class="example-data-content-type">Content-Type: application/json</div>
     <pre class="example"><code>{
-  "firstName" : "aeiou",
-  "lastName" : "aeiou",
-  "password" : "aeiou",
+  "firstName" : "firstName",
+  "lastName" : "lastName",
+  "password" : "password",
   "userStatus" : 6,
-  "phone" : "aeiou",
+  "phone" : "phone",
   "id" : 0,
-  "email" : "aeiou",
-  "username" : "aeiou"
+  "email" : "email",
+  "username" : "username"
 }</code></pre>
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -1173,11 +1216,11 @@ font-style: italic;
     <pre class="example"><code>aeiou</code></pre>
     <h3 class="field-label">Example data</h3>
     <div class="example-data-content-type">Content-Type: application/json</div>
-    <pre class="example"><code>"aeiou"</code></pre>
+    <pre class="example"><code>""</code></pre>
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -1211,7 +1254,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -1255,7 +1298,7 @@ font-style: italic;
 
     <h3 class="field-label">Produces</h3>
     This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
     <ul>
       <li><code>application/xml</code></li>
       <li><code>application/json</code></li>
@@ -1276,14 +1319,24 @@ font-style: italic;
 
   <h3>Table of Contents</h3>
   <ol>
+    <li><a href="#Amount"><code>Amount</code> - </a></li>
     <li><a href="#ApiResponse"><code>ApiResponse</code> - An uploaded response</a></li>
     <li><a href="#Category"><code>Category</code> - Pet category</a></li>
+    <li><a href="#Currency"><code>Currency</code> - </a></li>
     <li><a href="#Order"><code>Order</code> - Pet Order</a></li>
     <li><a href="#Pet"><code>Pet</code> - a Pet</a></li>
     <li><a href="#Tag"><code>Tag</code> - Pet Tag</a></li>
     <li><a href="#User"><code>User</code> - a User</a></li>
   </ol>
 
+  <div class="model">
+    <h3><a name="Amount"><code>Amount</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'>some description</div>
+    <div class="field-items">
+      <div class="param">value </div><div class="param-desc"><span class="param-type"><a href="#double">Double</a></span> some description format: double</div>
+<div class="param">currency </div><div class="param-desc"><span class="param-type"><a href="#Currency">Currency</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
   <div class="model">
     <h3><a name="ApiResponse"><code>ApiResponse</code> - An uploaded response</a> <a class="up" href="#__Models">Up</a></h3>
     <div class='model-description'>Describes the result of uploading an image resource</div>
@@ -1300,6 +1353,12 @@ font-style: italic;
       <div class="param">id (optional)</div><div class="param-desc"><span class="param-type"><a href="#long">Long</a></span>  format: int64</div>
 <div class="param">name (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
     </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="Currency"><code>Currency</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'>some description</div>
+    <div class="field-items">
+          </div>  <!-- field-items -->
   </div>
   <div class="model">
     <h3><a name="Order"><code>Order</code> - Pet Order</a> <a class="up" href="#__Models">Up</a></h3>
@@ -1322,6 +1381,7 @@ font-style: italic;
       <div class="param">id (optional)</div><div class="param-desc"><span class="param-type"><a href="#long">Long</a></span>  format: int64</div>
 <div class="param">category (optional)</div><div class="param-desc"><span class="param-type"><a href="#Category">Category</a></span>  </div>
 <div class="param">name </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+          <div class="param-desc"><span class="param-type">example: doggie</span></div>
 <div class="param">photoUrls </div><div class="param-desc"><span class="param-type"><a href="#string">array[String]</a></span>  </div>
 <div class="param">tags (optional)</div><div class="param-desc"><span class="param-type"><a href="#Tag">array[Tag]</a></span>  </div>
 <div class="param">status (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> pet status in the store </div>

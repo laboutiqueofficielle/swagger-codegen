@@ -7,7 +7,9 @@ import io.swagger.codegen.CodegenParameter;
 import io.swagger.codegen.CodegenType;
 import io.swagger.codegen.DefaultCodegen;
 import io.swagger.codegen.SupportingFile;
-import io.swagger.models.properties.*;
+import io.swagger.models.properties.ArrayProperty;
+import io.swagger.models.properties.MapProperty;
+import io.swagger.models.properties.Property;
 
 import java.io.File;
 import java.util.Arrays;
@@ -264,56 +266,6 @@ public class AndroidClientCodegen extends DefaultCodegen implements CodegenConfi
         return toModelName(name);
     }
 
-    /**
-     * Return the default value of the property
-     *
-     * @param p Swagger property object
-     * @return string presentation of the default value of the property
-     */
-    @Override
-    public String toDefaultValue(Property p) {
-        if (p instanceof IntegerProperty) {
-            IntegerProperty dp = (IntegerProperty) p;
-            if (dp.getDefault() != null) {
-                return dp.getDefault().toString();
-            }
-            return "null";
-        } else if (p instanceof LongProperty) {
-            LongProperty dp = (LongProperty) p;
-            if (dp.getDefault() != null) {
-                return dp.getDefault().toString()+"l";
-            }
-            return "null";
-        } else if (p instanceof DoubleProperty) {
-            DoubleProperty dp = (DoubleProperty) p;
-            if (dp.getDefault() != null) {
-                return dp.getDefault().toString() + "d";
-            }
-            return "null";
-        } else if (p instanceof FloatProperty) {
-            FloatProperty dp = (FloatProperty) p;
-            if (dp.getDefault() != null) {
-                return dp.getDefault().toString() + "f";
-            }
-            return "null";
-        }
-         else if (p instanceof BooleanProperty) {
-            BooleanProperty dp = (BooleanProperty) p;
-            if (dp.getDefault() != null) {
-                return dp.getDefault().toString();
-            }
-            return "null";
-        }
-         else if (p instanceof StringProperty) {
-            StringProperty dp = (StringProperty) p;
-            if (dp.getDefault() != null) {
-                return '"' + dp.getDefault() + '"';
-            }
-            return "null";
-        }
-        return super.toDefaultValue(p);
-    }
-
     @Override
     public void setParameterExampleValue(CodegenParameter p) {
         String example;
@@ -410,6 +362,14 @@ public class AndroidClientCodegen extends DefaultCodegen implements CodegenConfi
             additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, invokerPackage);
             additionalProperties.put("requestPackage", requestPackage);
             additionalProperties.put("authPackage", authPackage);
+        }
+
+        if (!additionalProperties.containsKey(CodegenConstants.MODEL_PACKAGE)) {
+            additionalProperties.put(CodegenConstants.MODEL_PACKAGE, modelPackage);
+        }
+
+        if (!additionalProperties.containsKey(CodegenConstants.API_PACKAGE)) {
+            additionalProperties.put(CodegenConstants.API_PACKAGE, apiPackage);
         }
 
         if (additionalProperties.containsKey(CodegenConstants.GROUP_ID)) {
@@ -547,8 +507,6 @@ public class AndroidClientCodegen extends DefaultCodegen implements CodegenConfi
                 (sourceFolder + File.separator + requestPackage).replace(".", File.separator), "PutRequest.java"));
         supportingFiles.add(new SupportingFile("request/deleterequest.mustache",
                 (sourceFolder + File.separator + requestPackage).replace(".", File.separator), "DeleteRequest.java"));
-        supportingFiles.add(new SupportingFile("request/inputrequest.mustache",
-                (sourceFolder + File.separator + requestPackage).replace(".", File.separator), "InputStreamRequest.java"));
         supportingFiles.add(new SupportingFile("request/patchrequest.mustache",
                 (sourceFolder + File.separator + requestPackage).replace(".", File.separator), "PatchRequest.java"));
         supportingFiles.add(new SupportingFile("auth/apikeyauth.mustache",
@@ -597,6 +555,10 @@ public class AndroidClientCodegen extends DefaultCodegen implements CodegenConfi
 
     public void setAndroidBuildToolsVersion(String androidBuildToolsVersion) {
         this.androidBuildToolsVersion = androidBuildToolsVersion;
+    }
+
+    public String getInvokerPackage() {
+        return invokerPackage;
     }
 
     public void setInvokerPackage(String invokerPackage) {

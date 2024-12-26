@@ -2,10 +2,16 @@ package {{package}};
 
 import {{invokerPackage}}.ApiException;
 import {{invokerPackage}}.ApiClient;
+import {{invokerPackage}}.ApiResponse;
 import {{invokerPackage}}.Configuration;
 import {{invokerPackage}}.Pair;
 
+{{#jakarta}}
+import jakarta.ws.rs.core.GenericType;
+{{/jakarta}}
+{{^jakarta}}
 import javax.ws.rs.core.GenericType;
+{{/jakarta}}
 
 {{#imports}}import {{import}};
 {{/imports}}
@@ -21,6 +27,7 @@ import java.util.Map;
 {{#operations}}
 public class {{classname}} {
   private ApiClient {{localVariablePrefix}}apiClient;
+  private Map<String, String> headers;
 
   public {{classname}}() {
     this(Configuration.getDefaultApiClient());
@@ -36,6 +43,10 @@ public class {{classname}} {
 
   public void setApiClient(ApiClient apiClient) {
     this.{{localVariablePrefix}}apiClient = apiClient;
+  }
+
+  public void setHeadersOverrides(Map<String, String> headers) {
+    this.headers = headers;
   }
 
   {{#operation}}
@@ -61,6 +72,35 @@ public class {{classname}} {
   @Deprecated
   {{/isDeprecated}}
   public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}) throws ApiException {
+    {{#returnType}}
+    return {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}).getData();
+    {{/returnType}}{{^returnType}}
+    {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
+    {{/returnType}}
+  }
+
+  /**
+   * {{summary}}
+   * {{notes}}
+   {{#allParams}}
+   * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}
+   {{/allParams}}
+   {{#returnType}}
+   * @return ApiResponse&lt;{{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Void{{/returnType}}&gt;
+   {{/returnType}}
+   * @throws ApiException if fails to make API call
+   {{#isDeprecated}}
+   * @deprecated
+   {{/isDeprecated}}
+   {{#externalDocs}}
+   * {{description}}
+   * @see <a href="{{url}}">{{summary}} Documentation</a>
+   {{/externalDocs}}
+   */
+  {{#isDeprecated}}
+  @Deprecated
+  {{/isDeprecated}}
+  public ApiResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}) throws ApiException {
     Object {{localVariablePrefix}}localVarPostBody = {{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}};
     {{#allParams}}{{#required}}
     // verify the required parameter '{{paramName}}' is set
@@ -103,9 +143,19 @@ public class {{classname}} {
 
     {{#returnType}}
     GenericType<{{{returnType}}}> {{localVariablePrefix}}localVarReturnType = new GenericType<{{{returnType}}}>() {};
+
+    if (headers != null) {
+      localVarHeaderParams.putAll(headers);
+    }
+
     return {{localVariablePrefix}}apiClient.invokeAPI({{localVariablePrefix}}localVarPath, "{{httpMethod}}", {{localVariablePrefix}}localVarQueryParams, {{localVariablePrefix}}localVarPostBody, {{localVariablePrefix}}localVarHeaderParams, {{localVariablePrefix}}localVarFormParams, {{localVariablePrefix}}localVarAccept, {{localVariablePrefix}}localVarContentType, {{localVariablePrefix}}localVarAuthNames, {{localVariablePrefix}}localVarReturnType);
     {{/returnType}}{{^returnType}}
-    {{localVariablePrefix}}apiClient.invokeAPI({{localVariablePrefix}}localVarPath, "{{httpMethod}}", {{localVariablePrefix}}localVarQueryParams, {{localVariablePrefix}}localVarPostBody, {{localVariablePrefix}}localVarHeaderParams, {{localVariablePrefix}}localVarFormParams, {{localVariablePrefix}}localVarAccept, {{localVariablePrefix}}localVarContentType, {{localVariablePrefix}}localVarAuthNames, null);
+
+    if (headers != null) {
+      localVarHeaderParams.putAll(headers);
+    }
+
+    return {{localVariablePrefix}}apiClient.invokeAPI({{localVariablePrefix}}localVarPath, "{{httpMethod}}", {{localVariablePrefix}}localVarQueryParams, {{localVariablePrefix}}localVarPostBody, {{localVariablePrefix}}localVarHeaderParams, {{localVariablePrefix}}localVarFormParams, {{localVariablePrefix}}localVarAccept, {{localVariablePrefix}}localVarContentType, {{localVariablePrefix}}localVarAuthNames, null);
     {{/returnType}}
   }
   {{/operation}}

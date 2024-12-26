@@ -1,6 +1,7 @@
 package io.swagger.api;
 
 import java.io.File;
+import java.io.InputStream;
 import io.swagger.model.ModelApiResponse;
 import io.swagger.model.Pet;
 
@@ -29,7 +30,7 @@ public interface PetApi {
     }, tags={ "pet",  })
     @ApiResponses(value = { 
         @ApiResponse(code = 405, message = "Invalid input", response = Void.class) })
-    void addPet(@Valid Pet body) throws Exception;
+    void addPet(@Valid Pet body);
 
     @DELETE
     @Path("/{petId}")
@@ -42,7 +43,7 @@ public interface PetApi {
     }, tags={ "pet",  })
     @ApiResponses(value = { 
         @ApiResponse(code = 400, message = "Invalid pet value", response = Void.class) })
-    void deletePet(@PathParam("petId") @ApiParam("Pet id to delete") Long petId,@HeaderParam("api_key")   String apiKey) throws Exception;
+    void deletePet(@PathParam("petId") @ApiParam("Pet id to delete") Long petId,@HeaderParam("api_key")   String apiKey);
 
     @GET
     @Path("/findByStatus")
@@ -56,7 +57,7 @@ public interface PetApi {
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "successful operation", response = Pet.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Invalid status value", response = Void.class, responseContainer = "List") })
-    List<Pet> findPetsByStatus(@QueryParam("status") @NotNull   @ApiParam("Status values that need to be considered for filter")  List<String> status) throws Exception;
+    List<Pet> findPetsByStatus(@QueryParam("status") @NotNull   @ApiParam("Status values that need to be considered for filter")  List<String> status);
 
     @GET
     @Path("/findByTags")
@@ -70,7 +71,7 @@ public interface PetApi {
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "successful operation", response = Pet.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Invalid tag value", response = Void.class, responseContainer = "List") })
-    List<Pet> findPetsByTags(@QueryParam("tags") @NotNull   @ApiParam("Tags to filter by")  List<String> tags) throws Exception;
+    List<Pet> findPetsByTags(@QueryParam("tags") @NotNull   @ApiParam("Tags to filter by")  List<String> tags);
 
     @GET
     @Path("/{petId}")
@@ -82,7 +83,7 @@ public interface PetApi {
         @ApiResponse(code = 200, message = "successful operation", response = Pet.class),
         @ApiResponse(code = 400, message = "Invalid ID supplied", response = Void.class),
         @ApiResponse(code = 404, message = "Pet not found", response = Void.class) })
-    Pet getPetById(@PathParam("petId") @ApiParam("ID of pet to return") Long petId) throws Exception;
+    Pet getPetById(@PathParam("petId") @ApiParam("ID of pet to return") Long petId);
 
     @PUT
     @Consumes({ "application/json", "application/xml" })
@@ -97,7 +98,7 @@ public interface PetApi {
         @ApiResponse(code = 400, message = "Invalid ID supplied", response = Void.class),
         @ApiResponse(code = 404, message = "Pet not found", response = Void.class),
         @ApiResponse(code = 405, message = "Validation exception", response = Void.class) })
-    void updatePet(@Valid Pet body) throws Exception;
+    void updatePet(@Valid Pet body);
 
     @POST
     @Path("/{petId}")
@@ -111,7 +112,7 @@ public interface PetApi {
     }, tags={ "pet",  })
     @ApiResponses(value = { 
         @ApiResponse(code = 405, message = "Invalid input", response = Void.class) })
-    void updatePetWithForm(@PathParam("petId") @ApiParam("ID of pet that needs to be updated") Long petId,@FormParam(value = "name")  String name,@FormParam(value = "status")  String status) throws Exception;
+    void updatePetWithForm(@PathParam("petId") @ApiParam("ID of pet that needs to be updated") Long petId,@FormParam(value = "name")  String name,@FormParam(value = "status")  String status);
 
     @POST
     @Path("/{petId}/uploadImage")
@@ -125,6 +126,5 @@ public interface PetApi {
     }, tags={ "pet" })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "successful operation", response = ModelApiResponse.class) })
-    ModelApiResponse uploadFile(@PathParam("petId") @ApiParam("ID of pet to update") Long petId,@FormParam(value = "additionalMetadata")  String additionalMetadata, @FormParam(value = "file") InputStream fileInputStream,
-   @FormParam(value = "file") Attachment fileDetail) throws Exception;
+    ModelApiResponse uploadFile(@PathParam("petId") @ApiParam("ID of pet to update") Long petId,@FormParam(value = "additionalMetadata")  String additionalMetadata, @FormParam(value = "file") InputStream fileInputStream);
 }

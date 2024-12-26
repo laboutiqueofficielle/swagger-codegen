@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.swagger</groupId>
   <artifactId>jaxrs-cxf-petstore-client</artifactId>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
   <name>jaxrs-cxf-petstore-client</name>
   <description>This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key &#x60;special-key&#x60; to test the authorization filters.</description>
   <version>1.0.0</version>
@@ -33,7 +33,7 @@
           <stopPort>8079</stopPort>
           <stopKey>stopit</stopKey>
           <httpConnector>
-            <port>8080</port>
+            <port></port>
             <idleTimeout>60000</idleTimeout>
           </httpConnector>
         </configuration>
@@ -77,102 +77,79 @@
           </execution>
         </executions>
       </plugin>
-      
-      <!-- build WAR file -->
-      <plugin>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>3.1.0</version>
-        <configuration>
-           <failOnMissingWebXml>false</failOnMissingWebXml>
-        </configuration>
-    </plugin>
     </plugins>
   </build>
-  <dependencies>
-    <dependency>
-      <groupId>io.swagger</groupId>
-      <artifactId>swagger-jaxrs</artifactId>
-      <scope>compile</scope>
-      <version>${swagger-core-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>${logback-version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-core</artifactId>
-      <version>${logback-version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit-version}</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- Bean Validation API support -->
-    <dependency>
-        <groupId>javax.validation</groupId>
-        <artifactId>validation-api</artifactId>
-        <version>${beanvalidation-version}</version>
-        <scope>provided</scope>
-    </dependency>
-    <!-- CXF Client -->
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-rs-client</artifactId>
-        <version>${cxf-version}</version>
-        <scope>test</scope>
-    </dependency>
-    
-     <!-- CXF server -->
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-        <version>${cxf-version}</version>
-        <scope>compile</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-rs-service-description</artifactId>
-        <version>${cxf-version}</version>
-        <scope>compile</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-rs-service-description-swagger</artifactId>
-        <version>${cxf-version}</version>
-        <scope>compile</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-ws-policy</artifactId>
-        <version>${cxf-version}</version>
-        <scope>compile</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-wsdl</artifactId>
-        <version>${cxf-version}</version>
-        <scope>compile</scope>
-    </dependency>
-    <dependency>
-        <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        <artifactId>jackson-jaxrs-json-provider</artifactId>
-        <version>${jackson-jaxrs-version}</version>
-        <scope>compile</scope>
-    </dependency>
-    <dependency>
-       <groupId>com.fasterxml.jackson.datatype</groupId>
-       <artifactId>jackson-datatype-joda</artifactId>
-       <version>${jackson-jaxrs-version}</version>
-       <scope>compile</scope>
-    </dependency>
-  </dependencies>
-  <repositories>
+    <dependencies>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-jaxrs</artifactId>
+            <scope>compile</scope>
+            <version>${swagger-core-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback-version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback-version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- CXF Client -->
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-client</artifactId>
+            <version>${cxf-version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- CXF server -->
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+            <version>${cxf-version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-service-description</artifactId>
+            <version>${cxf-version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-ws-policy</artifactId>
+            <version>${cxf-version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-wsdl</artifactId>
+            <version>${cxf-version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <version>${jackson-jaxrs-version}</version>
+            <scope>compile</scope>
+        </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-joda</artifactId>
+                <version>${jackson-jaxrs-version}</version>
+            </dependency>
+    </dependencies>
+    <repositories>
     <repository>
       <id>sonatype-snapshots</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -181,18 +158,17 @@
       </snapshots>
     </repository>
   </repositories>
-  <properties>
+    <properties>
     <java.version>1.7</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <swagger-core-version>1.5.15</swagger-core-version>
-    <jetty-version>9.2.9.v20150224</jetty-version>
-    <junit-version>4.12</junit-version>
-    <logback-version>1.1.7</logback-version>
+    <swagger-core-version>1.5.24</swagger-core-version>
+    <jetty-version>9.3.27.v20190418</jetty-version>
+    <junit-version>4.13.1</junit-version>
+    <logback-version>1.4.14</logback-version>
     <servlet-api-version>2.5</servlet-api-version>
-    <beanvalidation-version>1.1.0.Final</beanvalidation-version>
-    <cxf-version>3.1.11</cxf-version>
-    <jackson-jaxrs-version>2.8.9</jackson-jaxrs-version>
+    <cxf-version>3.2.1</cxf-version>
+    <jackson-jaxrs-version>2.11.4</jackson-jaxrs-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 </project>
